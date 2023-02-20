@@ -30,14 +30,14 @@ Please create issues if you encounter bugs and any help for the project is great
 | CHAR                | String                                                 |
 | VARCHAR             | String / IP                                            |
 | STRING              | String                                                 |
-| BOOLEAN             | UInt8                                                  |
+| BOOLEAN             | Boolean                                                |
 | BYTES               | String                                                 |
 | DECIMAL             | Decimal / Int128 / Int256 / UInt64 / UInt128 / UInt256 |
 | TINYINT             | Int8                                                   |
 | SMALLINT            | Int16 / UInt8                                          |
 | INTEGER             | Int32 / UInt16 / Interval                              |
 | BIGINT              | Int64 / UInt32                                         |
-| FLOAT               | Float                                               |
+| FLOAT               | Float                                                  |
 | DOUBLE              | Double                                                 |
 | DATE                | Date                                                   |
 | TIME                | DateTime                                               |
