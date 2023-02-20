@@ -2,10 +2,10 @@ package org.apache.flink.connector.databend.util;
 
 import com.databend.client.data.DatabendRawType;
 import com.databend.client.data.DatabendTypes;
+import com.databend.jdbc.DatabendColumnInfo;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
 import org.apache.flink.table.types.DataType;
-//import com.databend.jdbc.ColumnInfo;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -22,8 +22,8 @@ public class DataTypeUtil {
      * Convert databend data type to flink data type. <br>
      * TODO: Whether to indicate nullable?
      */
-    public static DataType toFlinkType(DatabendRawType databendRawType) {
-        switch ((databendRawType.getType().toLowerCase(Locale.US))) {
+    public static DataType toFlinkType(DatabendColumnInfo columnInfo) {
+        switch ((columnInfo.getColumnTypeName().toLowerCase(Locale.US))) {
             case DatabendTypes.INT8:
                 return DataTypes.TINYINT();
             case DatabendTypes.INT16:
@@ -61,7 +61,7 @@ public class DataTypeUtil {
 //                        toFlinkType(databendColumnInfo.getValueInfo()));
             default:
                 throw new UnsupportedOperationException(
-                        "Unsupported type:" + databendRawType.getType());
+                        "Unsupported type:" + columnInfo.getColumnTypeName().toLowerCase(Locale.US));
         }
     }
 

@@ -1,6 +1,7 @@
 package org.apache.flink.connector.databend.catalog;
 
 import com.databend.jdbc.DatabendResultSetMetaData;
+import com.databend.jdbc.DatabendColumnInfo;
 import org.apache.flink.connector.databend.DatabendDynamicTableFactory;
 import org.apache.flink.connector.databend.util.DataTypeUtil;
 import org.apache.flink.connector.databend.util.DatabendUtil;
@@ -241,8 +242,8 @@ public class DatabendCatalog extends AbstractCatalog {
             List<String> primaryKeys = getPrimaryKeys(databaseName, tableName);
             TableSchema.Builder builder = TableSchema.builder();
             for (int idx = 1; idx <= metaData.getColumnCount(); idx++) {
-                ClickHouseColumnInfo columnInfo =
-                        (ClickHouseColumnInfo) getColMethod.invoke(metaData, idx);
+                DatabendColumnInfo columnInfo =
+                        (DatabendColumnInfo) getColMethod.invoke(metaData, idx);
                 String columnName = columnInfo.getColumnName();
                 DataType columnType = DataTypeUtil.toFlinkType(columnInfo);
                 if (primaryKeys.contains(columnName)) {
