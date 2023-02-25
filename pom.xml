@@ -178,6 +178,12 @@
           <version>1.16.0</version>
       </dependency>
       <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-api-java-bridge</artifactId>
+          <version>1.16.0</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
           <groupId>com.databend</groupId>
           <artifactId>databend-jdbc</artifactId>
           <version>0.0.5</version>
@@ -207,9 +213,20 @@
           <scope>${flink.scope}</scope>
       </dependency>
       <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-planner_${scala.binary.version}</artifactId>
+          <version>${flink.version}</version>
+      </dependency>
+      <dependency>
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpcore</artifactId>
           <version>4.4.14</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-test-utils</artifactId>
+          <version>1.16.0</version>
+          <scope>test</scope>
       </dependency>
       <dependency>
           <groupId>org.apache.httpcomponents</groupId>
