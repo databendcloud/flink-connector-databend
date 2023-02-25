@@ -48,7 +48,6 @@ public class DatabendStatementFactory {
     public static String getUpdateStatement(
             String tableName,
             String databaseName,
-            String clusterName,
             String[] fieldNames,
             String[] keyFields,
             String[] partitionFields) {
@@ -63,9 +62,6 @@ public class DatabendStatementFactory {
                         .map((f) -> quoteIdentifier(f) + "=?")
                         .collect(joining(" AND "));
         String onClusterClause = "";
-        if (clusterName != null) {
-            onClusterClause = " ON CLUSTER " + quoteIdentifier(clusterName);
-        }
 
         return String.join(
                 EMPTY,
@@ -79,15 +75,12 @@ public class DatabendStatementFactory {
     }
 
     public static String getDeleteStatement(
-            String tableName, String databaseName, String clusterName, String[] conditionFields) {
+            String tableName, String databaseName, String[] conditionFields) {
         String conditionClause =
                 Arrays.stream(conditionFields)
                         .map((f) -> quoteIdentifier(f) + "=?")
                         .collect(joining(" AND "));
         String onClusterClause = "";
-        if (clusterName != null) {
-            onClusterClause = " ON CLUSTER " + quoteIdentifier(clusterName);
-        }
 
         return String.join(
                 EMPTY,

@@ -70,7 +70,6 @@ public interface DatabendExecutor extends Serializable {
     static DatabendExecutor createDatabendExecutor(
             String tableName,
             String databaseName,
-            String clusterName,
             String[] fieldNames,
             String[] keyFields,
             String[] partitionFields,
@@ -80,7 +79,6 @@ public interface DatabendExecutor extends Serializable {
             return createUpsertExecutor(
                     tableName,
                     databaseName,
-                    clusterName,
                     fieldNames,
                     keyFields,
                     partitionFields,
@@ -104,7 +102,6 @@ public interface DatabendExecutor extends Serializable {
     static DatabendUpsertExecutor createUpsertExecutor(
             String tableName,
             String databaseName,
-            String clusterName,
             String[] fieldNames,
             String[] keyFields,
             String[] partitionFields,
@@ -115,13 +112,12 @@ public interface DatabendExecutor extends Serializable {
                 DatabendStatementFactory.getUpdateStatement(
                         tableName,
                         databaseName,
-                        clusterName,
                         fieldNames,
                         keyFields,
                         partitionFields);
         String deleteSql =
                 DatabendStatementFactory.getDeleteStatement(
-                        tableName, databaseName, clusterName, keyFields);
+                        tableName, databaseName, keyFields);
 
         // Re-sort the order of fields to fit the sql statement.
         int[] delFields =

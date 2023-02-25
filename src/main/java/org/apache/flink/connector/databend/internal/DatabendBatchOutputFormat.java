@@ -48,12 +48,10 @@ public class DatabendBatchOutputFormat extends AbstractDatabendOutputFormat{
     @Override
     public void open(int taskNumber, int numTasks) throws IOException {
         try {
-            // TODO Distributed tables don't support update and delete statements.
             executor =
                     DatabendExecutor.createDatabendExecutor(
                             options.getTableName(),
                             options.getDatabaseName(),
-                            null,
                             fieldNames,
                             keyFields,
                             partitionFields,
