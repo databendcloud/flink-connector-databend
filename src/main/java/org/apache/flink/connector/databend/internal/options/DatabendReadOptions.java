@@ -1,10 +1,10 @@
 package org.apache.flink.connector.databend.internal.options;
 
 import javax.annotation.Nullable;
+
 public class DatabendReadOptions extends DatabendConnectionOptions {
     private static final long serialVersionUID = 1L;
 
-    private final boolean useLocal;
 
     private final String partitionColumn;
     private final Integer partitionNum;
@@ -17,22 +17,17 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
             @Nullable String password,
             String databaseName,
             String tableName,
-            boolean useLocal,
             String partitionColumn,
             Integer partitionNum,
             Long partitionLowerBound,
             Long partitionUpperBound) {
         super(url, username, password, databaseName, tableName);
-        this.useLocal = useLocal;
         this.partitionColumn = partitionColumn;
         this.partitionNum = partitionNum;
         this.partitionLowerBound = partitionLowerBound;
         this.partitionUpperBound = partitionUpperBound;
     }
 
-    public boolean isUseLocal() {
-        return useLocal;
-    }
 
     public String getPartitionColumn() {
         return partitionColumn;
@@ -50,14 +45,15 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
         return partitionUpperBound;
     }
 
-    /** Builder for {@link DatabendReadOptions}. */
+    /**
+     * Builder for {@link DatabendReadOptions}.
+     */
     public static class Builder {
         private String url;
         private String username;
         private String password;
         private String databaseName;
         private String tableName;
-        private boolean useLocal;
         private String partitionColumn;
         private Integer partitionNum;
         private Long partitionLowerBound;
@@ -88,10 +84,6 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
             return this;
         }
 
-        public DatabendReadOptions.Builder withUseLocal(boolean useLocal) {
-            this.useLocal = useLocal;
-            return this;
-        }
 
         public DatabendReadOptions.Builder withPartitionColumn(String partitionColumn) {
             this.partitionColumn = partitionColumn;
@@ -120,7 +112,6 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
                     password,
                     databaseName,
                     tableName,
-                    useLocal,
                     partitionColumn,
                     partitionNum,
                     partitionLowerBound,
