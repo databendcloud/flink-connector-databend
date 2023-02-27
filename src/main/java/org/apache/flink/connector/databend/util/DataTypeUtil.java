@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 
 import static org.apache.flink.table.types.logical.DecimalType.MAX_PRECISION;
 
-/** Type utils. */
+/**
+ * Type utils.
+ */
 public class DataTypeUtil {
 
     private static final Pattern INTERNAL_TYPE_PATTERN = Pattern.compile(".*?\\((?<type>.*)\\)");
@@ -45,7 +47,7 @@ public class DataTypeUtil {
                 return DataTypes.DATE();
             case DatabendTypes.DATETIME:
             case DatabendTypes.DATETIME64:
-//                return DataTypes.TIMESTAMP(databendColumnInfo.getScale());
+                return DataTypes.TIMESTAMP(columnInfo.getScale());
             case DatabendTypes.ARRAY:
 //                String arrayBaseType =
 //                        getInternalDatabendType(databendColumnInfo.getOriginalTypeName());

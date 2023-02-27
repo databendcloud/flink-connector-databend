@@ -22,7 +22,7 @@ public class DatabendConnectionOptions implements Serializable {
 
     private final String tableName;
 
-    protected DatabendConnectionOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName) {
+    public DatabendConnectionOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName) {
         this.url = url;
         this.username = username;
         this.password = password;
