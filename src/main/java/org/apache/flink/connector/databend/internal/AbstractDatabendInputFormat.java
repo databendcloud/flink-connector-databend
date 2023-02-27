@@ -29,8 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowData, InputSplit>
-        implements ResultTypeQueryable<RowData> {
+public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowData, InputSplit> implements ResultTypeQueryable<RowData> {
     protected final String[] fieldNames;
 
     protected final TypeInformation<RowData> rowDataTypeInfo;
@@ -43,13 +42,7 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
 
     protected final long limit;
 
-    protected AbstractDatabendInputFormat(
-            String[] fieldNames,
-            TypeInformation<RowData> rowDataTypeInfo,
-            Object[][] parameterValues,
-            String parameterClause,
-            String filterClause,
-            long limit) {
+    protected AbstractDatabendInputFormat(String[] fieldNames, TypeInformation<RowData> rowDataTypeInfo, Object[][] parameterValues, String parameterClause, String filterClause, long limit) {
         this.fieldNames = fieldNames;
         this.rowDataTypeInfo = rowDataTypeInfo;
         this.parameterValues = parameterValues;
@@ -86,8 +79,7 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
     }
 
     protected String getQuery(String table, String database) {
-        String queryTemplate =
-                DatabendStatementFactory.getSelectStatement(table, database, fieldNames);
+        String queryTemplate = DatabendStatementFactory.getSelectStatement(table, database, fieldNames);
         StringBuilder whereBuilder = new StringBuilder();
         if (filterClause != null) {
             if (filterClause.toLowerCase().contains(" or ")) {
@@ -109,9 +101,7 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
             limitClause = "LIMIT " + limit;
         }
 
-        return whereBuilder.length() > 0
-                ? String.join(" ", queryTemplate, "WHERE", whereBuilder.toString(), limitClause)
-                : String.join(" ", queryTemplate, limitClause);
+        return whereBuilder.length() > 0 ? String.join(" ", queryTemplate, "WHERE", whereBuilder.toString(), limitClause) : String.join(" ", queryTemplate, limitClause);
     }
 
     /**
@@ -187,13 +177,9 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
 
             DatabendConnectionProvider connectionProvider = null;
             try {
-                connectionProvider =
-                        new DatabendConnectionProvider(readOptions, connectionProperties);
+                connectionProvider = new DatabendConnectionProvider(readOptions, connectionProperties);
 
-                LogicalType[] logicalTypes =
-                        Arrays.stream(fieldTypes)
-                                .map(DataType::getLogicalType)
-                                .toArray(LogicalType[]::new);
+                LogicalType[] logicalTypes = Arrays.stream(fieldTypes).map(DataType::getLogicalType).toArray(LogicalType[]::new);
                 return createBatchInputFormat(logicalTypes);
             } catch (Exception e) {
                 throw new RuntimeException("Build Databend input format failed.", e);
@@ -206,16 +192,7 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
 
 
         private AbstractDatabendInputFormat createBatchInputFormat(LogicalType[] logicalTypes) {
-            return new DatabendBatchInputFormat(
-                    new DatabendConnectionProvider(readOptions, connectionProperties),
-                    new DatabendRowConverter(RowType.of(logicalTypes)),
-                    readOptions,
-                    fieldNames,
-                    rowDataTypeInfo,
-                    parameterValues,
-                    parameterClause,
-                    filterClause,
-                    limit);
+            return new DatabendBatchInputFormat(new DatabendConnectionProvider(readOptions, connectionProperties), new DatabendRowConverter(RowType.of(logicalTypes)), readOptions, fieldNames, rowDataTypeInfo, parameterValues, parameterClause, filterClause, limit);
         }
     }
 }

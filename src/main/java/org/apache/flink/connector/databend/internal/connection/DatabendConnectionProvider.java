@@ -40,8 +40,7 @@ public class DatabendConnectionProvider implements Serializable {
         this(options, new Properties());
     }
 
-    public DatabendConnectionProvider(
-            DatabendConnectionOptions options, Properties connectionProperties) {
+    public DatabendConnectionProvider(DatabendConnectionOptions options, Properties connectionProperties) {
         this.options = options;
         this.connectionProperties = connectionProperties;
     }

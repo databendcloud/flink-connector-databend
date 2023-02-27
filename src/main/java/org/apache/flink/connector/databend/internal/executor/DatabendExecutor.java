@@ -25,7 +25,9 @@ import java.sql.DriverManager;
 
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 
-/** Executor interface for submitting data to Databend. */
+/**
+ * Executor interface for submitting data to Databend.
+ */
 public interface DatabendExecutor extends Serializable {
     Logger LOG = LoggerFactory.getLogger(DatabendExecutor.class);
 
@@ -41,8 +43,7 @@ public interface DatabendExecutor extends Serializable {
 
     void closeStatement();
 
-    default void attemptExecuteBatch(DatabendPreparedStatement stmt, int maxRetries)
-            throws SQLException {
+    default void attemptExecuteBatch(DatabendPreparedStatement stmt, int maxRetries) throws SQLException {
         for (int i = 0; i <= maxRetries; i++) {
             try {
                 stmt.executeBatch();
@@ -50,102 +51,46 @@ public interface DatabendExecutor extends Serializable {
             } catch (Exception exception) {
                 LOG.error("Databend executeBatch error, retry times = {}", i, exception);
                 if (i >= maxRetries) {
-                    throw new SQLException(
-                            String.format(
-                                    "Attempt to execute batch failed, exhausted retry times = %d",
-                                    maxRetries),
-                            exception);
+                    throw new SQLException(String.format("Attempt to execute batch failed, exhausted retry times = %d", maxRetries), exception);
                 }
                 try {
                     Thread.sleep(1000L * i);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
-                    throw new SQLException(
-                            "Unable to flush; interrupted while doing another attempt", ex);
+                    throw new SQLException("Unable to flush; interrupted while doing another attempt", ex);
                 }
             }
         }
     }
 
-    static DatabendExecutor createDatabendExecutor(
-            String tableName,
-            String databaseName,
-            String[] fieldNames,
-            String[] keyFields,
-            String[] partitionFields,
-            LogicalType[] fieldTypes,
-            DatabendDmlOptions options) {
+    static DatabendExecutor createDatabendExecutor(String tableName, String databaseName, String[] fieldNames, String[] keyFields, String[] partitionFields, LogicalType[] fieldTypes, DatabendDmlOptions options) {
         if (keyFields.length > 0) {
-            return createUpsertExecutor(
-                    tableName,
-                    databaseName,
-                    fieldNames,
-                    keyFields,
-                    partitionFields,
-                    fieldTypes,
-                    options);
+            return createUpsertExecutor(tableName, databaseName, fieldNames, keyFields, partitionFields, fieldTypes, options);
         } else {
             return createBatchExecutor(tableName, fieldNames, fieldTypes, options);
         }
     }
 
-    static DatabendBatchExecutor createBatchExecutor(
-            String tableName,
-            String[] fieldNames,
-            LogicalType[] fieldTypes,
-            DatabendDmlOptions options) {
+    static DatabendBatchExecutor createBatchExecutor(String tableName, String[] fieldNames, LogicalType[] fieldTypes, DatabendDmlOptions options) {
         String insertSql = DatabendStatementFactory.getInsertIntoStatement(tableName, fieldNames);
         DatabendRowConverter converter = new DatabendRowConverter(RowType.of(fieldTypes));
         return new DatabendBatchExecutor(insertSql, converter, options);
     }
 
-    static DatabendUpsertExecutor createUpsertExecutor(
-            String tableName,
-            String databaseName,
-            String[] fieldNames,
-            String[] keyFields,
-            String[] partitionFields,
-            LogicalType[] fieldTypes,
-            DatabendDmlOptions options) {
+    static DatabendUpsertExecutor createUpsertExecutor(String tableName, String databaseName, String[] fieldNames, String[] keyFields, String[] partitionFields, LogicalType[] fieldTypes, DatabendDmlOptions options) {
         String insertSql = DatabendStatementFactory.getInsertIntoStatement(tableName, fieldNames);
-        String updateSql =
-                DatabendStatementFactory.getUpdateStatement(
-                        tableName,
-                        databaseName,
-                        fieldNames,
-                        keyFields,
-                        partitionFields);
-        String deleteSql =
-                DatabendStatementFactory.getDeleteStatement(
-                        tableName, databaseName, keyFields);
+        String updateSql = DatabendStatementFactory.getUpdateStatement(tableName, databaseName, fieldNames, keyFields, partitionFields);
+        String deleteSql = DatabendStatementFactory.getDeleteStatement(tableName, databaseName, keyFields);
 
         // Re-sort the order of fields to fit the sql statement.
-        int[] delFields =
-                Arrays.stream(keyFields)
-                        .mapToInt(pk -> ArrayUtils.indexOf(fieldNames, pk))
-                        .toArray();
-        int[] updatableFields =
-                IntStream.range(0, fieldNames.length)
-                        .filter(idx -> !ArrayUtils.contains(keyFields, fieldNames[idx]))
-                        .filter(idx -> !ArrayUtils.contains(partitionFields, fieldNames[idx]))
-                        .toArray();
+        int[] delFields = Arrays.stream(keyFields).mapToInt(pk -> ArrayUtils.indexOf(fieldNames, pk)).toArray();
+        int[] updatableFields = IntStream.range(0, fieldNames.length).filter(idx -> !ArrayUtils.contains(keyFields, fieldNames[idx])).filter(idx -> !ArrayUtils.contains(partitionFields, fieldNames[idx])).toArray();
         int[] updFields = ArrayUtils.addAll(updatableFields, delFields);
 
-        LogicalType[] delTypes =
-                Arrays.stream(delFields).mapToObj(f -> fieldTypes[f]).toArray(LogicalType[]::new);
-        LogicalType[] updTypes =
-                Arrays.stream(updFields).mapToObj(f -> fieldTypes[f]).toArray(LogicalType[]::new);
+        LogicalType[] delTypes = Arrays.stream(delFields).mapToObj(f -> fieldTypes[f]).toArray(LogicalType[]::new);
+        LogicalType[] updTypes = Arrays.stream(updFields).mapToObj(f -> fieldTypes[f]).toArray(LogicalType[]::new);
 
-        return new DatabendUpsertExecutor(
-                insertSql,
-                updateSql,
-                deleteSql,
-                new DatabendRowConverter(RowType.of(fieldTypes)),
-                new DatabendRowConverter(RowType.of(updTypes)),
-                new DatabendRowConverter(RowType.of(delTypes)),
-                createExtractor(fieldTypes, updFields),
-                createExtractor(fieldTypes, delFields),
-                options);
+        return new DatabendUpsertExecutor(insertSql, updateSql, deleteSql, new DatabendRowConverter(RowType.of(fieldTypes)), new DatabendRowConverter(RowType.of(updTypes)), new DatabendRowConverter(RowType.of(delTypes)), createExtractor(fieldTypes, updFields), createExtractor(fieldTypes, delFields), options);
     }
 
     static Function<RowData, RowData> createExtractor(LogicalType[] logicalTypes, int[] fields) {

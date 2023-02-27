@@ -39,8 +39,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Abstract class of Databend output format.
  */
-public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowData>
-        implements Flushable {
+public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowData> implements Flushable {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDatabendOutputFormat.class);
@@ -63,22 +62,17 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
     public void scheduledFlush(long intervalMillis, String executorName) {
         Preconditions.checkArgument(intervalMillis > 0, "flush interval must be greater than 0");
         scheduler = new ScheduledThreadPoolExecutor(1, new ExecutorThreadFactory(executorName));
-        scheduledFuture =
-                scheduler.scheduleWithFixedDelay(
-                        () -> {
-                            synchronized (this) {
-                                if (!closed) {
-                                    try {
-                                        flush();
-                                    } catch (Exception e) {
-                                        flushException = e;
-                                    }
-                                }
-                            }
-                        },
-                        intervalMillis,
-                        intervalMillis,
-                        TimeUnit.MILLISECONDS);
+        scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
+            synchronized (this) {
+                if (!closed) {
+                    try {
+                        flush();
+                    } catch (Exception e) {
+                        flushException = e;
+                    }
+                }
+            }
+        }, intervalMillis, intervalMillis, TimeUnit.MILLISECONDS);
     }
 
     public void checkBeforeFlush(final DatabendExecutor executor) throws IOException {
@@ -123,10 +117,10 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
      * Builder for {@link DatabendBatchOutputFormat}.
      */
     protected abstract void closeOutputFormat();
+
     public static class Builder {
 
-        private static final Logger LOG =
-                LoggerFactory.getLogger(AbstractDatabendOutputFormat.Builder.class);
+        private static final Logger LOG = LoggerFactory.getLogger(AbstractDatabendOutputFormat.Builder.class);
 
         private DataType[] fieldTypes;
 
@@ -157,10 +151,7 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
 
         public AbstractDatabendOutputFormat.Builder withFieldTypes(DataType[] fieldTypes) {
             this.fieldTypes = fieldTypes;
-            this.logicalTypes =
-                    Arrays.stream(fieldTypes)
-                            .map(DataType::getLogicalType)
-                            .toArray(LogicalType[]::new);
+            this.logicalTypes = Arrays.stream(fieldTypes).map(DataType::getLogicalType).toArray(LogicalType[]::new);
             return this;
         }
 
@@ -188,8 +179,7 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
             Preconditions.checkNotNull(partitionKeys);
             if (primaryKeys.length > 0) {
                 LOG.warn("If primary key is specified, connector will be in UPSERT mode.");
-                LOG.warn(
-                        "The data will be updated / deleted by the primary key, you will have significant performance loss.");
+                LOG.warn("The data will be updated / deleted by the primary key, you will have significant performance loss.");
             }
 
             DatabendConnectionProvider connectionProvider = null;
@@ -206,21 +196,11 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
         }
 
         private DatabendBatchOutputFormat createBatchOutputFormat() {
-            return new DatabendBatchOutputFormat(
-                    new DatabendConnectionProvider(options, connectionProperties),
-                    fieldNames,
-                    primaryKeys,
-                    partitionKeys,
-                    logicalTypes,
-                    options);
+            return new DatabendBatchOutputFormat(new DatabendConnectionProvider(options, connectionProperties), fieldNames, primaryKeys, partitionKeys, logicalTypes, options);
         }
 
         private List<FieldGetter> parseFieldGetters(FunctionExpr functionExpr) {
-            return functionExpr.getArguments().stream()
-                    .map(
-                            expression -> parseFieldGetters((FunctionExpr) expression))
-                    .flatMap(Collection::stream)
-                    .collect(toList());
+            return functionExpr.getArguments().stream().map(expression -> parseFieldGetters((FunctionExpr) expression)).flatMap(Collection::stream).collect(toList());
         }
     }
 }

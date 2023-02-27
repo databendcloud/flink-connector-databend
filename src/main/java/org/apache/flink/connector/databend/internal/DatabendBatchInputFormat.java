@@ -30,16 +30,7 @@ public class DatabendBatchInputFormat extends AbstractDatabendInputFormat {
     private transient ResultSet resultSet;
     private transient boolean hasNext;
 
-    public DatabendBatchInputFormat(
-            DatabendConnectionProvider connectionProvider,
-            DatabendRowConverter rowConverter,
-            DatabendReadOptions readOptions,
-            String[] fieldNames,
-            TypeInformation<RowData> rowDataTypeInfo,
-            Object[][] parameterValues,
-            String parameterClause,
-            String filterClause,
-            long limit) {
+    public DatabendBatchInputFormat(DatabendConnectionProvider connectionProvider, DatabendRowConverter rowConverter, DatabendReadOptions readOptions, String[] fieldNames, TypeInformation<RowData> rowDataTypeInfo, Object[][] parameterValues, String parameterClause, String filterClause, long limit) {
         super(fieldNames, rowDataTypeInfo, parameterValues, parameterClause, filterClause, limit);
         this.connectionProvider = connectionProvider;
         this.rowConverter = rowConverter;

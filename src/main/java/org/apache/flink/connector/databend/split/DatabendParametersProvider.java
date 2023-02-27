@@ -2,19 +2,25 @@ package org.apache.flink.connector.databend.split;
 
 import java.io.Serializable;
 
-/** Databend parameters provider. */
+/**
+ * Databend parameters provider.
+ */
 public abstract class DatabendParametersProvider {
 
     protected Serializable[][] parameterValues;
     protected Serializable[][] shardIdValues;
     protected int batchNum;
 
-    /** Returns the necessary parameters array to use for query in parallel a table. */
+    /**
+     * Returns the necessary parameters array to use for query in parallel a table.
+     */
     public Serializable[][] getParameterValues() {
         return parameterValues;
     }
 
-    /** Returns the shard ids that the parameter values act on. */
+    /**
+     * Returns the shard ids that the parameter values act on.
+     */
     public Serializable[][] getShardIdValues() {
         return shardIdValues;
     }
@@ -28,8 +34,9 @@ public abstract class DatabendParametersProvider {
     // -------------------------- Methods for local tables --------------------------
 
 
-
-    /** Builder. */
+    /**
+     * Builder.
+     */
     public static class Builder {
 
         private Long minVal;

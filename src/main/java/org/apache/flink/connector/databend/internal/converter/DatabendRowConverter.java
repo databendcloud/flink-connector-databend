@@ -37,8 +37,7 @@ public class DatabendRowConverter {
 
     public DatabendRowConverter(RowType rowType) {
         this.rowType = Preconditions.checkNotNull(rowType);
-        LogicalType[] logicalTypes =
-                rowType.getFields().stream().map(RowField::getType).toArray(LogicalType[]::new);
+        LogicalType[] logicalTypes = rowType.getFields().stream().map(RowField::getType).toArray(LogicalType[]::new);
         this.toInternalConverters = new DeserializationConverter[rowType.getFieldCount()];
         this.toExternalConverters = new SerializationConverter[rowType.getFieldCount()];
 
@@ -61,8 +60,7 @@ public class DatabendRowConverter {
         return genericRowData;
     }
 
-    public void toExternal(RowData rowData, DatabendPreparedStatement statement)
-            throws SQLException {
+    public void toExternal(RowData rowData, DatabendPreparedStatement statement) throws SQLException {
         for (int index = 0; index < rowData.getArity(); index++) {
             if (!rowData.isNullAt(index)) {
                 toExternalConverters[index].serialize(rowData, index, statement);
@@ -72,8 +70,7 @@ public class DatabendRowConverter {
         }
     }
 
-    protected DatabendRowConverter.DeserializationConverter createToInternalConverter(
-            LogicalType type) {
+    protected DatabendRowConverter.DeserializationConverter createToInternalConverter(LogicalType type) {
         switch (type.getTypeRoot()) {
             case NULL:
                 return val -> null;
@@ -95,11 +92,7 @@ public class DatabendRowConverter {
             case DECIMAL:
                 final int precision = ((DecimalType) type).getPrecision();
                 final int scale = ((DecimalType) type).getScale();
-                return val ->
-                        val instanceof BigInteger
-                                ? DecimalData.fromBigDecimal(
-                                new BigDecimal((BigInteger) val, 0), precision, scale)
-                                : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
+                return val -> val instanceof BigInteger ? DecimalData.fromBigDecimal(new BigDecimal((BigInteger) val, 0), precision, scale) : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
             case DATE:
                 return val -> (int) ((Date) val).toLocalDate().toEpochDay();
             case TIME_WITHOUT_TIME_ZONE:
@@ -123,18 +116,14 @@ public class DatabendRowConverter {
         }
     }
 
-    protected DatabendRowConverter.SerializationConverter createToExternalConverter(
-            LogicalType type) {
+    protected DatabendRowConverter.SerializationConverter createToExternalConverter(LogicalType type) {
         switch (type.getTypeRoot()) {
             case BOOLEAN:
-                return (val, index, statement) ->
-                        statement.setBoolean(index + 1, val.getBoolean(index));
+                return (val, index, statement) -> statement.setBoolean(index + 1, val.getBoolean(index));
             case FLOAT:
-                return (val, index, statement) ->
-                        statement.setFloat(index + 1, val.getFloat(index));
+                return (val, index, statement) -> statement.setFloat(index + 1, val.getFloat(index));
             case DOUBLE:
-                return (val, index, statement) ->
-                        statement.setDouble(index + 1, val.getDouble(index));
+                return (val, index, statement) -> statement.setDouble(index + 1, val.getDouble(index));
             case INTERVAL_YEAR_MONTH:
             case INTEGER:
                 return (val, index, statement) -> statement.setInt(index + 1, val.getInt(index));
@@ -144,21 +133,16 @@ public class DatabendRowConverter {
             case TINYINT:
                 return (val, index, statement) -> statement.setByte(index + 1, val.getByte(index));
             case SMALLINT:
-                return (val, index, statement) ->
-                        statement.setShort(index + 1, val.getShort(index));
+                return (val, index, statement) -> statement.setShort(index + 1, val.getShort(index));
             case CHAR:
             case VARCHAR:
                 // value is BinaryString
-                return (val, index, statement) ->
-                        statement.setString(index + 1, val.getString(index).toString());
+                return (val, index, statement) -> statement.setString(index + 1, val.getString(index).toString());
             case BINARY:
             case VARBINARY:
-                return (val, index, statement) ->
-                        statement.setBytes(index + 1, val.getBinary(index));
+                return (val, index, statement) -> statement.setBytes(index + 1, val.getBinary(index));
             case DATE:
-                return (val, index, statement) ->
-                        statement.setDate(
-                                index + 1, Date.valueOf(LocalDate.ofEpochDay(val.getInt(index))));
+                return (val, index, statement) -> statement.setDate(index + 1, Date.valueOf(LocalDate.ofEpochDay(val.getInt(index))));
             case TIME_WITHOUT_TIME_ZONE:
                 return (val, index, statement) -> {
                     LocalTime localTime = LocalTime.ofNanoOfDay(val.getInt(index) * 1_000_000L);
@@ -167,39 +151,18 @@ public class DatabendRowConverter {
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
                 final int timestampPrecision = ((TimestampType) type).getPrecision();
-                return (val, index, statement) ->
-                        statement.setTimestamp(
-                                index + 1,
-                                val.getTimestamp(index, timestampPrecision).toTimestamp());
+                return (val, index, statement) -> statement.setTimestamp(index + 1, val.getTimestamp(index, timestampPrecision).toTimestamp());
             case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
-                final int localZonedTimestampPrecision =
-                        ((LocalZonedTimestampType) type).getPrecision();
-                return (val, index, statement) ->
-                        statement.setTimestamp(
-                                index + 1,
-                                Timestamp.from(
-                                        val.getTimestamp(index, localZonedTimestampPrecision)
-                                                .toInstant()));
+                final int localZonedTimestampPrecision = ((LocalZonedTimestampType) type).getPrecision();
+                return (val, index, statement) -> statement.setTimestamp(index + 1, Timestamp.from(val.getTimestamp(index, localZonedTimestampPrecision).toInstant()));
             case DECIMAL:
                 final int decimalPrecision = ((DecimalType) type).getPrecision();
                 final int decimalScale = ((DecimalType) type).getScale();
-                return (val, index, statement) ->
-                        statement.setBigDecimal(
-                                index + 1,
-                                val.getDecimal(index, decimalPrecision, decimalScale)
-                                        .toBigDecimal());
+                return (val, index, statement) -> statement.setBigDecimal(index + 1, val.getDecimal(index, decimalPrecision, decimalScale).toBigDecimal());
             case ARRAY:
-                return (val, index, statement) ->
-                        statement.setArray(
-                                index + 1,
-                                (Array)
-                                        DatabendConverterUtils.toExternal(
-                                                val.getArray(index), type));
+                return (val, index, statement) -> statement.setArray(index + 1, (Array) DatabendConverterUtils.toExternal(val.getArray(index), type));
             case MAP:
-                return (val, index, statement) ->
-                        statement.setObject(
-                                index + 1,
-                                DatabendConverterUtils.toExternal(val.getMap(index), type));
+                return (val, index, statement) -> statement.setObject(index + 1, DatabendConverterUtils.toExternal(val.getMap(index), type));
             case MULTISET:
             case ROW:
             case RAW:
@@ -214,8 +177,7 @@ public class DatabendRowConverter {
          * Convert a internal field to to java object and fill into the {@link
          * DatabendPreparedStatement}.
          */
-        void serialize(RowData rowData, int index, DatabendPreparedStatement statement)
-                throws SQLException;
+        void serialize(RowData rowData, int index, DatabendPreparedStatement statement) throws SQLException;
     }
 
     @FunctionalInterface

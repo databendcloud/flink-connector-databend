@@ -54,16 +54,9 @@ public class DatabendCatalogFactory implements CatalogFactory {
 
     @Override
     public Catalog createCatalog(Context context) {
-        final FactoryUtil.CatalogFactoryHelper helper =
-                FactoryUtil.createCatalogFactoryHelper(this, context);
+        final FactoryUtil.CatalogFactoryHelper helper = FactoryUtil.createCatalogFactoryHelper(this, context);
         helper.validateExcept(PROPERTIES_PREFIX);
 
-        return new DatabendCatalog(
-                context.getName(),
-                helper.getOptions().get(DATABASE_NAME),
-                helper.getOptions().get(URL),
-                helper.getOptions().get(USERNAME),
-                helper.getOptions().get(PASSWORD),
-                ((Configuration) helper.getOptions()).toMap());
+        return new DatabendCatalog(context.getName(), helper.getOptions().get(DATABASE_NAME), helper.getOptions().get(URL), helper.getOptions().get(USERNAME), helper.getOptions().get(PASSWORD), ((Configuration) helper.getOptions()).toMap());
     }
 }

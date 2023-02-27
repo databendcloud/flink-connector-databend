@@ -30,8 +30,7 @@ public class DatabendBatchExecutor implements DatabendExecutor {
 
     private transient DatabendConnectionProvider connectionProvider;
 
-    public DatabendBatchExecutor(
-            String insertSql, DatabendRowConverter converter, DatabendDmlOptions options) {
+    public DatabendBatchExecutor(String insertSql, DatabendRowConverter converter, DatabendDmlOptions options) {
         this.insertSql = insertSql;
         this.converter = converter;
         this.maxRetries = options.getMaxRetries();
@@ -43,8 +42,7 @@ public class DatabendBatchExecutor implements DatabendExecutor {
     }
 
     @Override
-    public void prepareStatement(DatabendConnectionProvider connectionProvider)
-            throws SQLException {
+    public void prepareStatement(DatabendConnectionProvider connectionProvider) throws SQLException {
         this.connectionProvider = connectionProvider;
         prepareStatement(connectionProvider.getOrCreateConnection());
     }
@@ -65,10 +63,7 @@ public class DatabendBatchExecutor implements DatabendExecutor {
             case UPDATE_BEFORE:
                 break;
             default:
-                throw new UnsupportedOperationException(
-                        String.format(
-                                "Unknown row kind, the supported row kinds is: INSERT, UPDATE_BEFORE, UPDATE_AFTER, DELETE, but get: %s.",
-                                record.getRowKind()));
+                throw new UnsupportedOperationException(String.format("Unknown row kind, the supported row kinds is: INSERT, UPDATE_BEFORE, UPDATE_AFTER, DELETE, but get: %s.", record.getRowKind()));
         }
     }
 
@@ -92,14 +87,6 @@ public class DatabendBatchExecutor implements DatabendExecutor {
 
     @Override
     public String toString() {
-        return "DatabendBatchExecutor{"
-                + "insertSql='"
-                + insertSql
-                + '\''
-                + ", maxRetries="
-                + maxRetries
-                + ", connectionProvider="
-                + connectionProvider
-                + '}';
+        return "DatabendBatchExecutor{" + "insertSql='" + insertSql + '\'' + ", maxRetries=" + maxRetries + ", connectionProvider=" + connectionProvider + '}';
     }
 }

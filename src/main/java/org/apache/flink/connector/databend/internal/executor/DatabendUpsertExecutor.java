@@ -1,4 +1,5 @@
 package org.apache.flink.connector.databend.internal.executor;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
@@ -21,8 +22,10 @@ import static org.apache.flink.connector.databend.config.DatabendConfigOptions.S
 import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.INSERT;
 import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.UPDATE;
 
-/** Databend's upsert executor. */
-public class DatabendUpsertExecutor implements DatabendExecutor{
+/**
+ * Databend's upsert executor.
+ */
+public class DatabendUpsertExecutor implements DatabendExecutor {
     private static final long serialVersionUID = 1L;
 
     Logger LOG = LoggerFactory.getLogger(DatabendExecutor.class);
@@ -57,16 +60,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor{
 
     private transient DatabendConnectionProvider connectionProvider;
 
-    public DatabendUpsertExecutor(
-            String insertSql,
-            String updateSql,
-            String deleteSql,
-            DatabendRowConverter insertConverter,
-            DatabendRowConverter updateConverter,
-            DatabendRowConverter deleteConverter,
-            Function<RowData, RowData> updateExtractor,
-            Function<RowData, RowData> deleteExtractor,
-            DatabendDmlOptions options) {
+    public DatabendUpsertExecutor(String insertSql, String updateSql, String deleteSql, DatabendRowConverter insertConverter, DatabendRowConverter updateConverter, DatabendRowConverter deleteConverter, Function<RowData, RowData> updateExtractor, Function<RowData, RowData> deleteExtractor, DatabendDmlOptions options) {
         this.insertSql = insertSql;
         this.updateSql = updateSql;
         this.deleteSql = deleteSql;
@@ -88,14 +82,14 @@ public class DatabendUpsertExecutor implements DatabendExecutor{
     }
 
     @Override
-    public void prepareStatement(DatabendConnectionProvider connectionProvider)
-            throws SQLException {
+    public void prepareStatement(DatabendConnectionProvider connectionProvider) throws SQLException {
         this.connectionProvider = connectionProvider;
         prepareStatement(connectionProvider.getOrCreateConnection());
     }
 
     @Override
-    public void setRuntimeContext(RuntimeContext context) {}
+    public void setRuntimeContext(RuntimeContext context) {
+    }
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
@@ -126,17 +120,13 @@ public class DatabendUpsertExecutor implements DatabendExecutor{
             case UPDATE_BEFORE:
                 break;
             default:
-                throw new UnsupportedOperationException(
-                        String.format(
-                                "Unknown row kind, the supported row kinds is: INSERT, UPDATE_BEFORE, UPDATE_AFTER, DELETE, but get: %s.",
-                                record.getRowKind()));
+                throw new UnsupportedOperationException(String.format("Unknown row kind, the supported row kinds is: INSERT, UPDATE_BEFORE, UPDATE_AFTER, DELETE, but get: %s.", record.getRowKind()));
         }
     }
 
     @Override
     public void executeBatch() throws SQLException {
-        for (DatabendPreparedStatement databendPreparedStatement :
-                Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
+        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
             if (databendPreparedStatement != null) {
                 attemptExecuteBatch(databendPreparedStatement, maxRetries);
             }
@@ -145,8 +135,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor{
 
     @Override
     public void closeStatement() {
-        for (DatabendPreparedStatement databendPreparedStatement :
-                Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
+        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
             if (databendPreparedStatement != null) {
                 try {
                     databendPreparedStatement.close();
@@ -159,24 +148,6 @@ public class DatabendUpsertExecutor implements DatabendExecutor{
 
     @Override
     public String toString() {
-        return "DatabendUpsertExecutor{"
-                + "insertSql='"
-                + insertSql
-                + '\''
-                + ", updateSql='"
-                + updateSql
-                + '\''
-                + ", deleteSql='"
-                + deleteSql
-                + '\''
-                + ", maxRetries="
-                + maxRetries
-                + ", updateStrategy="
-                + updateStrategy
-                + ", ignoreDelete="
-                + ignoreDelete
-                + ", connectionProvider="
-                + connectionProvider
-                + '}';
+        return "DatabendUpsertExecutor{" + "insertSql='" + insertSql + '\'' + ", updateSql='" + updateSql + '\'' + ", deleteSql='" + deleteSql + '\'' + ", maxRetries=" + maxRetries + ", updateStrategy=" + updateStrategy + ", ignoreDelete=" + ignoreDelete + ", connectionProvider=" + connectionProvider + '}';
     }
 }

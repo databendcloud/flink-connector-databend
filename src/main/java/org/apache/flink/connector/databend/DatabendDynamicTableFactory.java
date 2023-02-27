@@ -40,21 +40,9 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         validateConfigOptions(config);
 
         ResolvedCatalogTable catalogTable = context.getCatalogTable();
-        String[] primaryKeys =
-                catalogTable
-                        .getResolvedSchema()
-                        .getPrimaryKey()
-                        .map(UniqueConstraint::getColumns)
-                        .map(keys -> keys.toArray(new String[0]))
-                        .orElse(new String[0]);
-        Properties databendProperties =
-                getDatabendProperties(context.getCatalogTable().getOptions());
-        return new DatabendDynamicTableSink(
-                getDmlOptions(config),
-                databendProperties,
-                primaryKeys,
-                catalogTable.getPartitionKeys().toArray(new String[0]),
-                context.getPhysicalRowDataType());
+        String[] primaryKeys = catalogTable.getResolvedSchema().getPrimaryKey().map(UniqueConstraint::getColumns).map(keys -> keys.toArray(new String[0])).orElse(new String[0]);
+        Properties databendProperties = getDatabendProperties(context.getCatalogTable().getOptions());
+        return new DatabendDynamicTableSink(getDmlOptions(config), databendProperties, primaryKeys, catalogTable.getPartitionKeys().toArray(new String[0]), context.getPhysicalRowDataType());
     }
 
     @Override
@@ -64,10 +52,8 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         helper.validateExcept(PROPERTIES_PREFIX);
         validateConfigOptions(config);
 
-        Properties databendProperties =
-                getDatabendProperties(context.getCatalogTable().getOptions());
-        return new DatabendDynamicTableSource(
-                getReadOptions(config), databendProperties, context.getPhysicalRowDataType());
+        Properties databendProperties = getDatabendProperties(context.getCatalogTable().getOptions());
+        return new DatabendDynamicTableSource(getReadOptions(config), databendProperties, context.getPhysicalRowDataType());
     }
 
     @Override
@@ -99,36 +85,16 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
     }
 
     private void validateConfigOptions(ReadableConfig config) {
-        if (config.getOptional(USERNAME).isPresent()
-                ^ config.getOptional(PASSWORD).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Either all or none of username and password should be provided");
+        if (config.getOptional(USERNAME).isPresent() ^ config.getOptional(PASSWORD).isPresent()) {
+            throw new IllegalArgumentException("Either all or none of username and password should be provided");
         }
     }
 
     private DatabendDmlOptions getDmlOptions(ReadableConfig config) {
-        return new DatabendDmlOptions.Builder()
-                .withUrl(config.get(URL))
-                .withUsername(config.get(USERNAME))
-                .withPassword(config.get(PASSWORD))
-                .withDatabaseName(config.get(DATABASE_NAME))
-                .withTableName(config.get(TABLE_NAME))
-                .withBatchSize(config.get(SINK_BATCH_SIZE))
-                .withFlushInterval(config.get(SINK_FLUSH_INTERVAL))
-                .withMaxRetries(config.get(SINK_MAX_RETRIES))
-                .withUpdateStrategy(config.get(SINK_UPDATE_STRATEGY))
-                .withIgnoreDelete(config.get(SINK_IGNORE_DELETE))
-                .withParallelism(config.get(SINK_PARALLELISM))
-                .build();
+        return new DatabendDmlOptions.Builder().withUrl(config.get(URL)).withUsername(config.get(USERNAME)).withPassword(config.get(PASSWORD)).withDatabaseName(config.get(DATABASE_NAME)).withTableName(config.get(TABLE_NAME)).withBatchSize(config.get(SINK_BATCH_SIZE)).withFlushInterval(config.get(SINK_FLUSH_INTERVAL)).withMaxRetries(config.get(SINK_MAX_RETRIES)).withUpdateStrategy(config.get(SINK_UPDATE_STRATEGY)).withIgnoreDelete(config.get(SINK_IGNORE_DELETE)).withParallelism(config.get(SINK_PARALLELISM)).build();
     }
 
     private DatabendReadOptions getReadOptions(ReadableConfig config) {
-        return new DatabendReadOptions.Builder()
-                .withUrl(config.get(URL))
-                .withUsername(config.get(USERNAME))
-                .withPassword(config.get(PASSWORD))
-                .withDatabaseName(config.get(DATABASE_NAME))
-                .withTableName(config.get(TABLE_NAME))
-                .build();
+        return new DatabendReadOptions.Builder().withUrl(config.get(URL)).withUsername(config.get(USERNAME)).withPassword(config.get(PASSWORD)).withDatabaseName(config.get(DATABASE_NAME)).withTableName(config.get(TABLE_NAME)).build();
     }
 }

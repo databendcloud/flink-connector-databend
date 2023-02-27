@@ -24,23 +24,11 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
     private final SinkUpdateStrategy updateStrategy;
 
 
-
     private final boolean ignoreDelete;
 
     private final Integer parallelism;
 
-    private DatabendDmlOptions(
-            String url,
-            @Nullable String username,
-            @Nullable String password,
-            String databaseName,
-            String tableName,
-            int batchSize,
-            Duration flushInterval,
-            int maxRetires,
-            SinkUpdateStrategy updateStrategy,
-            boolean ignoreDelete,
-            Integer parallelism) {
+    private DatabendDmlOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName, int batchSize, Duration flushInterval, int maxRetires, SinkUpdateStrategy updateStrategy, boolean ignoreDelete, Integer parallelism) {
         super(url, username, password, databaseName, tableName);
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;
@@ -63,14 +51,9 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
     }
 
 
-
     public SinkUpdateStrategy getUpdateStrategy() {
         return updateStrategy;
     }
-
-
-
-
 
 
     public boolean isIgnoreDelete() {
@@ -146,9 +129,6 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         }
 
 
-
-
-
         public DatabendDmlOptions.Builder withIgnoreDelete(boolean ignoreDelete) {
             this.ignoreDelete = ignoreDelete;
             return this;
@@ -160,18 +140,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         }
 
         public DatabendDmlOptions build() {
-            return new DatabendDmlOptions(
-                    url,
-                    username,
-                    password,
-                    databaseName,
-                    tableName,
-                    batchSize,
-                    flushInterval,
-                    maxRetries,
-                    updateStrategy,
-                    ignoreDelete,
-                    parallelism);
+            return new DatabendDmlOptions(url, username, password, databaseName, tableName, batchSize, flushInterval, maxRetries, updateStrategy, ignoreDelete, parallelism);
         }
     }
 }

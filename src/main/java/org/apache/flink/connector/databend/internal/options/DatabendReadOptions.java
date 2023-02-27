@@ -11,16 +11,7 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
     private final Long partitionLowerBound;
     private final Long partitionUpperBound;
 
-    private DatabendReadOptions(
-            String url,
-            @Nullable String username,
-            @Nullable String password,
-            String databaseName,
-            String tableName,
-            String partitionColumn,
-            Integer partitionNum,
-            Long partitionLowerBound,
-            Long partitionUpperBound) {
+    private DatabendReadOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName, String partitionColumn, Integer partitionNum, Long partitionLowerBound, Long partitionUpperBound) {
         super(url, username, password, databaseName, tableName);
         this.partitionColumn = partitionColumn;
         this.partitionNum = partitionNum;
@@ -106,16 +97,7 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
         }
 
         public DatabendReadOptions build() {
-            return new DatabendReadOptions(
-                    url,
-                    username,
-                    password,
-                    databaseName,
-                    tableName,
-                    partitionColumn,
-                    partitionNum,
-                    partitionLowerBound,
-                    partitionUpperBound);
+            return new DatabendReadOptions(url, username, password, databaseName, tableName, partitionColumn, partitionNum, partitionLowerBound, partitionUpperBound);
         }
     }
 }

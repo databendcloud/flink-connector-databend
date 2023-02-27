@@ -18,9 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class DatabendDynamicTableSource implements ScanTableSource,
-        SupportsProjectionPushDown,
-        SupportsLimitPushDown {
+public class DatabendDynamicTableSource implements ScanTableSource, SupportsProjectionPushDown, SupportsLimitPushDown {
     private final DatabendReadOptions readOptions;
 
     private final Properties connectionProperties;
@@ -31,10 +29,7 @@ public class DatabendDynamicTableSource implements ScanTableSource,
 
     private long limit = -1L;
 
-    public DatabendDynamicTableSource(
-            DatabendReadOptions readOptions,
-            Properties properties,
-            DataType physicalRowDataType) {
+    public DatabendDynamicTableSource(DatabendReadOptions readOptions, Properties properties, DataType physicalRowDataType) {
         this.readOptions = readOptions;
         this.connectionProperties = properties;
         this.physicalRowDataType = physicalRowDataType;
@@ -47,27 +42,13 @@ public class DatabendDynamicTableSource implements ScanTableSource,
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext runtimeProviderContext) {
-        AbstractDatabendInputFormat.Builder builder =
-                new AbstractDatabendInputFormat.Builder()
-                        .withOptions(readOptions)
-                        .withConnectionProperties(connectionProperties)
-                        .withFieldNames(
-                                DataType.getFieldNames(physicalRowDataType).toArray(new String[0]))
-                        .withFieldTypes(
-                                DataType.getFieldDataTypes(physicalRowDataType)
-                                        .toArray(new DataType[0]))
-                        .withRowDataTypeInfo(
-                                runtimeProviderContext.createTypeInformation(physicalRowDataType))
-                        .withFilterClause(filterClause)
-                        .withLimit(limit);
+        AbstractDatabendInputFormat.Builder builder = new AbstractDatabendInputFormat.Builder().withOptions(readOptions).withConnectionProperties(connectionProperties).withFieldNames(DataType.getFieldNames(physicalRowDataType).toArray(new String[0])).withFieldTypes(DataType.getFieldDataTypes(physicalRowDataType).toArray(new DataType[0])).withRowDataTypeInfo(runtimeProviderContext.createTypeInformation(physicalRowDataType)).withFilterClause(filterClause).withLimit(limit);
         return InputFormatProvider.of(builder.build());
     }
 
     @Override
     public DynamicTableSource copy() {
-        DatabendDynamicTableSource source =
-                new DatabendDynamicTableSource(
-                        readOptions, connectionProperties, physicalRowDataType);
+        DatabendDynamicTableSource source = new DatabendDynamicTableSource(readOptions, connectionProperties, physicalRowDataType);
         source.filterClause = filterClause;
         source.limit = limit;
         return source;

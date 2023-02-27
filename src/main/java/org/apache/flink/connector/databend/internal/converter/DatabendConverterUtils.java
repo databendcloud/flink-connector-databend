@@ -62,20 +62,12 @@ public class DatabendConverterUtils {
             case DECIMAL:
                 return ((DecimalData) value).toBigDecimal();
             case ARRAY:
-                LogicalType elementType =
-                        ((ArrayType) type)
-                                .getChildren().stream()
-                                .findFirst()
-                                .orElseThrow(
-                                        () ->
-                                                new RuntimeException(
-                                                        "Unknown array element type"));
+                LogicalType elementType = ((ArrayType) type).getChildren().stream().findFirst().orElseThrow(() -> new RuntimeException("Unknown array element type"));
                 ArrayData.ElementGetter elementGetter = ArrayData.createElementGetter(elementType);
                 ArrayData arrayData = ((ArrayData) value);
                 Object[] objectArray = new Object[arrayData.size()];
                 for (int i = 0; i < arrayData.size(); i++) {
-                    objectArray[i] =
-                            toExternal(elementGetter.getElementOrNull(arrayData, i), elementType);
+                    objectArray[i] = toExternal(elementGetter.getElementOrNull(arrayData, i), elementType);
                 }
                 return objectArray;
             case MAP:
@@ -88,9 +80,7 @@ public class DatabendConverterUtils {
                 ArrayData valueArrayData = mapData.valueArray();
                 Map<Object, Object> objectMap = new HashMap<>(keyArrayData.size());
                 for (int i = 0; i < keyArrayData.size(); i++) {
-                    objectMap.put(
-                            toExternal(keyGetter.getElementOrNull(keyArrayData, i), keyType),
-                            toExternal(valueGetter.getElementOrNull(valueArrayData, i), valueType));
+                    objectMap.put(toExternal(keyGetter.getElementOrNull(keyArrayData, i), keyType), toExternal(valueGetter.getElementOrNull(valueArrayData, i), valueType));
                 }
                 return objectMap;
             case MULTISET:
@@ -123,10 +113,7 @@ public class DatabendConverterUtils {
             case DECIMAL:
                 final int precision = ((DecimalType) type).getPrecision();
                 final int scale = ((DecimalType) type).getScale();
-                return value instanceof BigInteger
-                        ? DecimalData.fromBigDecimal(
-                        new BigDecimal((BigInteger) value, 0), precision, scale)
-                        : DecimalData.fromBigDecimal((BigDecimal) value, precision, scale);
+                return value instanceof BigInteger ? DecimalData.fromBigDecimal(new BigDecimal((BigInteger) value, 0), precision, scale) : DecimalData.fromBigDecimal((BigDecimal) value, precision, scale);
             case DATE:
                 return (int) (((Date) value).toLocalDate().toEpochDay());
             case TIME_WITHOUT_TIME_ZONE:
@@ -140,17 +127,12 @@ public class DatabendConverterUtils {
             case VARCHAR:
                 return StringData.fromString((String) value);
             case ARRAY:
-                LogicalType elementType =
-                        type.getChildren().stream()
-                                .findFirst()
-                                .orElseThrow(
-                                        () -> new RuntimeException("Unknown array element type"));
+                LogicalType elementType = type.getChildren().stream().findFirst().orElseThrow(() -> new RuntimeException("Unknown array element type"));
                 Object externalArray = ((Array) value).getArray();
                 int externalArrayLength = java.lang.reflect.Array.getLength(externalArray);
                 Object[] internalArray = new Object[externalArrayLength];
                 for (int i = 0; i < externalArrayLength; i++) {
-                    internalArray[i] =
-                            toInternal(java.lang.reflect.Array.get(externalArray, i), elementType);
+                    internalArray[i] = toInternal(java.lang.reflect.Array.get(externalArray, i), elementType);
                 }
                 return new GenericArrayData(internalArray);
             case MAP:
@@ -159,9 +141,7 @@ public class DatabendConverterUtils {
                 Map<?, ?> externalMap = (Map<?, ?>) value;
                 Map<Object, Object> internalMap = new HashMap<>(externalMap.size());
                 for (Map.Entry<?, ?> entry : externalMap.entrySet()) {
-                    internalMap.put(
-                            toInternal(entry.getKey(), keyType),
-                            toInternal(entry.getValue(), valueType));
+                    internalMap.put(toInternal(entry.getKey(), keyType), toInternal(entry.getValue(), valueType));
                 }
                 return new GenericMapData(internalMap);
             case ROW:
