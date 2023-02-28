@@ -2,14 +2,12 @@ package org.apache.flink.connector.databend.internal;
 
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
 import org.apache.flink.connector.databend.internal.executor.DatabendExecutor;
-import org.apache.flink.connector.databend.internal.options.DatabendConnectionOptions;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.util.Preconditions;
 
 import javax.annotation.Nonnull;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -32,7 +30,7 @@ public class DatabendBatchOutputFormat extends AbstractDatabendOutputFormat {
 
     private transient int batchCount = 0;
 
-    protected DatabendBatchOutputFormat(@Nonnull DatabendConnectionProvider connectionProvider, @Nonnull String[] fieldNames, @Nonnull String[] keyFields, @Nonnull String[] partitionFields, @Nonnull LogicalType[] fieldTypes, @Nonnull DatabendDmlOptions options) {
+    public DatabendBatchOutputFormat(@Nonnull DatabendConnectionProvider connectionProvider, @Nonnull String[] fieldNames, @Nonnull String[] keyFields, @Nonnull String[] partitionFields, @Nonnull LogicalType[] fieldTypes, @Nonnull DatabendDmlOptions options) {
         this.connectionProvider = Preconditions.checkNotNull(connectionProvider);
         this.fieldNames = Preconditions.checkNotNull(fieldNames);
         this.keyFields = Preconditions.checkNotNull(keyFields);
@@ -46,7 +44,7 @@ public class DatabendBatchOutputFormat extends AbstractDatabendOutputFormat {
         try {
             executor = DatabendExecutor.createDatabendExecutor(options.getTableName(), options.getDatabaseName(), fieldNames, keyFields, partitionFields, fieldTypes, options);
             executor.prepareStatement(connectionProvider);
-            executor.setRuntimeContext(getRuntimeContext());
+//            executor.setRuntimeContext(getRuntimeContext());
 
             long flushIntervalMillis = options.getFlushInterval().toMillis();
             scheduledFlush(flushIntervalMillis, "databend-batch-output-format");
@@ -61,6 +59,7 @@ public class DatabendBatchOutputFormat extends AbstractDatabendOutputFormat {
 
         try {
             executor.addToBatch(record);
+            System.out.println(record);
             batchCount++;
             if (batchCount >= options.getBatchSize()) {
                 flush();

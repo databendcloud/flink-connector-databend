@@ -4,8 +4,6 @@ import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpda
 
 import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
 
 
 /**
@@ -28,7 +26,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
 
     private final Integer parallelism;
 
-    private DatabendDmlOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName, int batchSize, Duration flushInterval, int maxRetires, SinkUpdateStrategy updateStrategy, boolean ignoreDelete, Integer parallelism) {
+    public DatabendDmlOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName, int batchSize, Duration flushInterval, int maxRetires, SinkUpdateStrategy updateStrategy, boolean ignoreDelete, Integer parallelism) {
         super(url, username, password, databaseName, tableName);
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;

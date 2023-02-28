@@ -90,7 +90,7 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         }
     }
 
-    private DatabendDmlOptions getDmlOptions(ReadableConfig config) {
+    public DatabendDmlOptions getDmlOptions(ReadableConfig config) {
         return new DatabendDmlOptions.Builder().withUrl(config.get(URL)).withUsername(config.get(USERNAME)).withPassword(config.get(PASSWORD)).withDatabaseName(config.get(DATABASE_NAME)).withTableName(config.get(TABLE_NAME)).withBatchSize(config.get(SINK_BATCH_SIZE)).withFlushInterval(config.get(SINK_FLUSH_INTERVAL)).withMaxRetries(config.get(SINK_MAX_RETRIES)).withUpdateStrategy(config.get(SINK_UPDATE_STRATEGY)).withIgnoreDelete(config.get(SINK_IGNORE_DELETE)).withParallelism(config.get(SINK_PARALLELISM)).build();
     }
 

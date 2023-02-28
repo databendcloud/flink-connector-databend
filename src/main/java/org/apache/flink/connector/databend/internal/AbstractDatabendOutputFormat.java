@@ -5,8 +5,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
 import org.apache.flink.connector.databend.internal.executor.DatabendExecutor;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
-import org.apache.flink.connector.databend.internal.schema.Expression;
-import org.apache.flink.connector.databend.internal.schema.FieldExpr;
 import org.apache.flink.connector.databend.internal.schema.FunctionExpr;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.RowData.FieldGetter;
@@ -14,15 +12,11 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.concurrent.ExecutorThreadFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.crypto.Data;
-import java.sql.Connection;
 import java.io.Flushable;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -32,8 +26,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -175,7 +167,7 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
             Preconditions.checkNotNull(options);
             Preconditions.checkNotNull(fieldNames);
             Preconditions.checkNotNull(fieldTypes);
-            Preconditions.checkNotNull(primaryKeys);
+//            Preconditions.checkNotNull(primaryKeys);
             Preconditions.checkNotNull(partitionKeys);
             if (primaryKeys.length > 0) {
                 LOG.warn("If primary key is specified, connector will be in UPSERT mode.");
