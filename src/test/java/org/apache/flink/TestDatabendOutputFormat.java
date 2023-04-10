@@ -13,6 +13,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -41,7 +42,7 @@ public class TestDatabendOutputFormat {
 
     private static Connection createConnection()
             throws SQLException {
-        String url = "jdbc:databend://localhost:8002";
+        String url = "jdbc:databend://localhost:8000";
         return DriverManager.getConnection(url, "root", "root");
     }
 
@@ -55,18 +56,24 @@ public class TestDatabendOutputFormat {
         c.createStatement().execute("create table test_output_format.test(x int,y varchar)");
     }
 
+    @AfterAll
+    public static void tearDown() throws SQLException {
+        Connection c = createConnection();
+        c.createStatement().execute("drop database if exists test_output_format");
+    }
+
     @Test
     public void TestAbstractDatabendOutput() throws SQLException, IOException {
         MockitoAnnotations.initMocks(this);
         HashMap<String, String> m = new HashMap<>();
-        m.put("properties.url", "databend://localhost:8002");
+        m.put("properties.url", "databend://localhost:8000");
         m.put("properties.username", "root");
         m.put("properties.password", "root");
         m.put("properties.database-name", "test_output_format");
         m.put("properties.table-name", "test");
         Properties properties = DatabendUtil.getDatabendProperties(m);
         DatabendConnectionOptions databendConnectionOptions = new DatabendConnectionOptions(
-                "databend://localhost:8002",
+                "databend://localhost:8000",
                 "root",
                 "root",
                 "test_output_format",
@@ -74,7 +81,7 @@ public class TestDatabendOutputFormat {
         );
 
         DatabendDmlOptions databendDmlOptions = new DatabendDmlOptions(
-                "databend://localhost:8002",
+                "databend://localhost:8000",
                 "root",
                 "root",
                 "test_output_format",
@@ -123,7 +130,11 @@ public class TestDatabendOutputFormat {
 
         // test writeRecord
         RowData record = GenericRowData.of(StringData.fromString("112"), StringData.fromString("test"));
+        RowData record1 = GenericRowData.of(StringData.fromString("113"), StringData.fromString("test"));
+        RowData record2 = GenericRowData.of(StringData.fromString("114"), StringData.fromString("test"));
         databendBatchOutputFormat.writeRecord(record);
+        databendBatchOutputFormat.writeRecord(record1);
+        databendBatchOutputFormat.writeRecord(record2);
         databendBatchOutputFormat.closeOutputFormat();
     }
 }

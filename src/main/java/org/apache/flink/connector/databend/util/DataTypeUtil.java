@@ -1,7 +1,5 @@
 package org.apache.flink.connector.databend.util;
 
-import com.databend.client.data.DatabendRawType;
-import com.databend.client.data.DatabendTypes;
 import com.databend.jdbc.DatabendColumnInfo;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
@@ -10,8 +8,6 @@ import org.apache.flink.table.types.DataType;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.apache.flink.table.types.logical.DecimalType.MAX_PRECISION;
 
 /**
  * Type utils.

@@ -5,15 +5,11 @@ import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
-import org.apache.flink.table.connector.sink.abilities.SupportsPartitioning;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.flink.util.Preconditions;
 
 import javax.annotation.Nonnull;
-
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -36,6 +32,26 @@ public class DatabendDynamicTableSink implements DynamicTableSink {
     private boolean dynamicGrouping = false;
 
     private LinkedHashMap<String, String> staticPartitionSpec = new LinkedHashMap<>();
+
+    public DataType getPhysicalRowDataType() {
+        return physicalRowDataType;
+    }
+
+    public String[] getPartitionKeys() {
+        return partitionKeys;
+    }
+
+    public String[] getPrimaryKeys() {
+        return primaryKeys;
+    }
+
+    public Properties getConnectionProperties() {
+        return connectionProperties;
+    }
+
+    public DatabendDmlOptions getOptions() {
+        return options;
+    }
 
     public DatabendDynamicTableSink(@Nonnull DatabendDmlOptions options, @Nonnull Properties connectionProperties, @Nonnull String[] primaryKeys, @Nonnull String[] partitionKeys, @Nonnull DataType physicalRowDataType) {
         this.options = options;
