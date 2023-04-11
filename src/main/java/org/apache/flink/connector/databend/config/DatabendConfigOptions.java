@@ -2,15 +2,10 @@ package org.apache.flink.connector.databend.config;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
-
 import org.apache.flink.table.catalog.CommonCatalogOptions;
-import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.factories.FactoryUtil;
 
-import java.io.Serializable;
 import java.time.Duration;
-import java.util.List;
-import java.util.function.Function;
 
 public class DatabendConfigOptions {
     public static final ConfigOption<String> URL = ConfigOptions.key(DatabendConfig.URL).stringType().noDefaultValue().withDescription("The Databend url in format `databend://<host>:<port>`.");
@@ -44,7 +39,9 @@ public class DatabendConfigOptions {
      * Update conversion strategy for sink operator.
      */
     public enum SinkUpdateStrategy {
-        UPDATE("update", "Convert UPDATE_AFTER records to update statement."), INSERT("insert", "Convert UPDATE_AFTER records to insert statement."), DISCARD("discard", "Discard UPDATE_AFTER records.");
+        UPDATE("update", "Convert UPDATE_AFTER records to update statement."),
+        INSERT("insert", "Convert UPDATE_AFTER records to insert statement."),
+        DISCARD("discard", "Discard UPDATE_AFTER records.");
 
         private final String value;
         private final String description;

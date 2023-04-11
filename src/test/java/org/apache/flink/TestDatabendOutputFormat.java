@@ -34,7 +34,6 @@ public class TestDatabendOutputFormat {
     // Create a list of DataType objects to mock
     DataType[] dataTypeList = {
             DataTypes.STRING(),
-            DataTypes.STRING(),
             DataTypes.STRING()
     };
 
@@ -86,7 +85,7 @@ public class TestDatabendOutputFormat {
                 "root",
                 "test_output_format",
                 "test",
-                1,
+                3,
                 Duration.ofSeconds(100),
                 3,
                 DatabendConfigOptions.SinkUpdateStrategy.INSERT,
