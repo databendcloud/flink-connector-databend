@@ -28,7 +28,7 @@ Please create issues if you encounter bugs and any help for the project is great
 | Flink Type          | Databend Type                                          |
 | :------------------ |:-------------------------------------------------------|
 | CHAR                | String                                                 |
-| VARCHAR             | String / IP                                            |
+| VARCHAR             | String                                                 |
 | STRING              | String                                                 |
 | BOOLEAN             | Boolean                                                |
 | BYTES               | String                                                 |
