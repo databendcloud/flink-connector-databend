@@ -179,5 +179,6 @@ tEnv.executeSql("insert into `databend`.`default`.`t_table` select...");
 
 - [x] Implement the Flink SQL Sink function.
 - [x] Support DatabendCatalog.
+- [x] Implement the Flink SQL Source function.
 - [ ] Support array and Map types.
-- [ ] Implement the Flink SQL Source function.
+
