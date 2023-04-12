@@ -1,5 +1,8 @@
 package org.apache.flink.connector.databend.internal;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.flink.api.common.io.DefaultInputSplitAssigner;
 import org.apache.flink.api.common.io.RichInputFormat;
 import org.apache.flink.api.common.io.statistics.BaseStatistics;
@@ -9,27 +12,17 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
 import org.apache.flink.connector.databend.internal.converter.DatabendRowConverter;
 import org.apache.flink.connector.databend.internal.options.DatabendReadOptions;
-import org.apache.flink.connector.databend.split.DatabendParametersProvider;
 import org.apache.flink.core.io.GenericInputSplit;
 import org.apache.flink.core.io.InputSplit;
 import org.apache.flink.core.io.InputSplitAssigner;
-import org.apache.flink.table.connector.source.ScanTableSource;
-import org.apache.flink.table.connector.source.abilities.SupportsFilterPushDown;
-import org.apache.flink.table.connector.source.abilities.SupportsLimitPushDown;
-import org.apache.flink.table.connector.source.abilities.SupportsProjectionPushDown;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowData, InputSplit> implements ResultTypeQueryable<RowData> {
+public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowData, InputSplit>
+        implements ResultTypeQueryable<RowData> {
     protected final String[] fieldNames;
 
     protected final TypeInformation<RowData> rowDataTypeInfo;
@@ -42,7 +35,13 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
 
     protected final long limit;
 
-    protected AbstractDatabendInputFormat(String[] fieldNames, TypeInformation<RowData> rowDataTypeInfo, Object[][] parameterValues, String parameterClause, String filterClause, long limit) {
+    protected AbstractDatabendInputFormat(
+            String[] fieldNames,
+            TypeInformation<RowData> rowDataTypeInfo,
+            Object[][] parameterValues,
+            String parameterClause,
+            String filterClause,
+            long limit) {
         this.fieldNames = fieldNames;
         this.rowDataTypeInfo = rowDataTypeInfo;
         this.parameterValues = parameterValues;
@@ -52,8 +51,7 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
     }
 
     @Override
-    public void configure(Configuration parameters) {
-    }
+    public void configure(Configuration parameters) {}
 
     @Override
     public BaseStatistics getStatistics(BaseStatistics cachedStatistics) {
@@ -101,7 +99,9 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
             limitClause = "LIMIT " + limit;
         }
 
-        return whereBuilder.length() > 0 ? String.join(" ", queryTemplate, "WHERE", whereBuilder.toString(), limitClause) : String.join(" ", queryTemplate, limitClause);
+        return whereBuilder.length() > 0
+                ? String.join(" ", queryTemplate, "WHERE", whereBuilder.toString(), limitClause)
+                : String.join(" ", queryTemplate, limitClause);
     }
 
     /**
@@ -179,7 +179,8 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
             try {
                 connectionProvider = new DatabendConnectionProvider(readOptions, connectionProperties);
 
-                LogicalType[] logicalTypes = Arrays.stream(fieldTypes).map(DataType::getLogicalType).toArray(LogicalType[]::new);
+                LogicalType[] logicalTypes =
+                        Arrays.stream(fieldTypes).map(DataType::getLogicalType).toArray(LogicalType[]::new);
                 return createBatchInputFormat(logicalTypes);
             } catch (Exception e) {
                 throw new RuntimeException("Build Databend input format failed.", e);
@@ -190,9 +191,17 @@ public abstract class AbstractDatabendInputFormat extends RichInputFormat<RowDat
             }
         }
 
-
         private AbstractDatabendInputFormat createBatchInputFormat(LogicalType[] logicalTypes) {
-            return new DatabendBatchInputFormat(new DatabendConnectionProvider(readOptions, connectionProperties), new DatabendRowConverter(RowType.of(logicalTypes)), readOptions, fieldNames, rowDataTypeInfo, parameterValues, parameterClause, filterClause, limit);
+            return new DatabendBatchInputFormat(
+                    new DatabendConnectionProvider(readOptions, connectionProperties),
+                    new DatabendRowConverter(RowType.of(logicalTypes)),
+                    readOptions,
+                    fieldNames,
+                    rowDataTypeInfo,
+                    parameterValues,
+                    parameterClause,
+                    filterClause,
+                    limit);
         }
     }
 }

@@ -1,17 +1,16 @@
 package org.apache.flink;
 
-import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
-import org.apache.flink.connector.databend.internal.options.DatabendConnectionOptions;
-import org.apache.flink.connector.databend.util.DatabendUtil;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
+import org.apache.flink.connector.databend.internal.options.DatabendConnectionOptions;
+import org.apache.flink.connector.databend.util.DatabendUtil;
+import org.junit.jupiter.api.Test;
 
 public class TestDatabendConnectionProvider {
     @Test
@@ -23,17 +22,11 @@ public class TestDatabendConnectionProvider {
         m.put("properties.database-name", "default");
         m.put("properties.table-name", "test");
         Properties properties = DatabendUtil.getDatabendProperties(m);
-        DatabendConnectionOptions databendConnectionOptions = new DatabendConnectionOptions(
-                "databend://localhost:8000",
-                "root",
-                "root",
-                "default",
-                "test"
-        );
+        DatabendConnectionOptions databendConnectionOptions =
+                new DatabendConnectionOptions("databend://localhost:8000", "root", "root", "default", "test");
 
-        DatabendConnectionProvider databendConnectionProvider = new DatabendConnectionProvider(
-                databendConnectionOptions, properties
-        );
+        DatabendConnectionProvider databendConnectionProvider =
+                new DatabendConnectionProvider(databendConnectionOptions, properties);
         Connection connection = databendConnectionProvider.getOrCreateConnection();
         Statement stmt = connection.createStatement();
         Boolean r = stmt.execute("select 1");

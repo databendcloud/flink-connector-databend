@@ -1,5 +1,17 @@
 package org.apache.flink.connector.databend.internal;
 
+import static java.util.stream.Collectors.toList;
+
+import java.io.Flushable;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
@@ -14,19 +26,6 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Flushable;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Abstract class of Databend output format.
@@ -44,27 +43,29 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
 
     protected transient volatile Exception flushException;
 
-    public AbstractDatabendOutputFormat() {
-    }
+    public AbstractDatabendOutputFormat() {}
 
     @Override
-    public void configure(Configuration parameters) {
-    }
+    public void configure(Configuration parameters) {}
 
     public void scheduledFlush(long intervalMillis, String executorName) {
         Preconditions.checkArgument(intervalMillis > 0, "flush interval must be greater than 0");
         scheduler = new ScheduledThreadPoolExecutor(1, new ExecutorThreadFactory(executorName));
-        scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
-            synchronized (this) {
-                if (!closed) {
-                    try {
-                        flush();
-                    } catch (Exception e) {
-                        flushException = e;
+        scheduledFuture = scheduler.scheduleWithFixedDelay(
+                () -> {
+                    synchronized (this) {
+                        if (!closed) {
+                            try {
+                                flush();
+                            } catch (Exception e) {
+                                flushException = e;
+                            }
+                        }
                     }
-                }
-            }
-        }, intervalMillis, intervalMillis, TimeUnit.MILLISECONDS);
+                },
+                intervalMillis,
+                intervalMillis,
+                TimeUnit.MILLISECONDS);
     }
 
     public void checkBeforeFlush(final DatabendExecutor executor) throws IOException {
@@ -103,7 +104,7 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
         }
     }
 
-//    protected abstract void closeOutputFormat();
+    //    protected abstract void closeOutputFormat();
 
     /**
      * Builder for {@link DatabendBatchOutputFormat}.
@@ -128,8 +129,7 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
 
         private String[] partitionKeys;
 
-        public Builder() {
-        }
+        public Builder() {}
 
         public AbstractDatabendOutputFormat.Builder withOptions(DatabendDmlOptions options) {
             this.options = options;
@@ -143,7 +143,8 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
 
         public AbstractDatabendOutputFormat.Builder withFieldTypes(DataType[] fieldTypes) {
             this.fieldTypes = fieldTypes;
-            this.logicalTypes = Arrays.stream(fieldTypes).map(DataType::getLogicalType).toArray(LogicalType[]::new);
+            this.logicalTypes =
+                    Arrays.stream(fieldTypes).map(DataType::getLogicalType).toArray(LogicalType[]::new);
             return this;
         }
 
@@ -162,16 +163,16 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
             return this;
         }
 
-
         public AbstractDatabendOutputFormat build() {
             Preconditions.checkNotNull(options);
             Preconditions.checkNotNull(fieldNames);
             Preconditions.checkNotNull(fieldTypes);
-//            Preconditions.checkNotNull(primaryKeys);
+            //            Preconditions.checkNotNull(primaryKeys);
             Preconditions.checkNotNull(partitionKeys);
             if (primaryKeys.length > 0) {
                 LOG.warn("If primary key is specified, connector will be in UPSERT mode.");
-                LOG.warn("The data will be updated / deleted by the primary key, you will have significant performance loss.");
+                LOG.warn(
+                        "The data will be updated / deleted by the primary key, you will have significant performance loss.");
             }
 
             DatabendConnectionProvider connectionProvider = null;
@@ -188,12 +189,20 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
         }
 
         private DatabendBatchOutputFormat createBatchOutputFormat() {
-            return new DatabendBatchOutputFormat(new DatabendConnectionProvider(options, connectionProperties), fieldNames, primaryKeys, partitionKeys, logicalTypes, options);
+            return new DatabendBatchOutputFormat(
+                    new DatabendConnectionProvider(options, connectionProperties),
+                    fieldNames,
+                    primaryKeys,
+                    partitionKeys,
+                    logicalTypes,
+                    options);
         }
 
         private List<FieldGetter> parseFieldGetters(FunctionExpr functionExpr) {
-            return functionExpr.getArguments().stream().map(expression -> parseFieldGetters((FunctionExpr) expression)).flatMap(Collection::stream).collect(toList());
+            return functionExpr.getArguments().stream()
+                    .map(expression -> parseFieldGetters((FunctionExpr) expression))
+                    .flatMap(Collection::stream)
+                    .collect(toList());
         }
     }
 }
-

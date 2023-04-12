@@ -1,5 +1,8 @@
 package org.apache.flink.connector.databend;
 
+import java.util.LinkedHashMap;
+import java.util.Properties;
+import javax.annotation.Nonnull;
 import org.apache.flink.connector.databend.internal.AbstractDatabendOutputFormat;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -7,10 +10,6 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-
-import javax.annotation.Nonnull;
-import java.util.LinkedHashMap;
-import java.util.Properties;
 
 /**
  * A {@link DynamicTableSink} that describes how to create a {@link DatabendDynamicTableSink} from
@@ -53,7 +52,12 @@ public class DatabendDynamicTableSink implements DynamicTableSink {
         return options;
     }
 
-    public DatabendDynamicTableSink(@Nonnull DatabendDmlOptions options, @Nonnull Properties connectionProperties, @Nonnull String[] primaryKeys, @Nonnull String[] partitionKeys, @Nonnull DataType physicalRowDataType) {
+    public DatabendDynamicTableSink(
+            @Nonnull DatabendDmlOptions options,
+            @Nonnull Properties connectionProperties,
+            @Nonnull String[] primaryKeys,
+            @Nonnull String[] partitionKeys,
+            @Nonnull DataType physicalRowDataType) {
         this.options = options;
         this.connectionProperties = connectionProperties;
         this.primaryKeys = primaryKeys;
@@ -63,20 +67,30 @@ public class DatabendDynamicTableSink implements DynamicTableSink {
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-        return ChangelogMode.newBuilder().addContainedKind(RowKind.INSERT).addContainedKind(RowKind.UPDATE_AFTER).addContainedKind(RowKind.DELETE).build();
+        return ChangelogMode.newBuilder()
+                .addContainedKind(RowKind.INSERT)
+                .addContainedKind(RowKind.UPDATE_AFTER)
+                .addContainedKind(RowKind.DELETE)
+                .build();
     }
-
 
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
-        AbstractDatabendOutputFormat outputFormat = new AbstractDatabendOutputFormat.Builder().withOptions(options).withConnectionProperties(connectionProperties).withFieldNames(DataType.getFieldNames(physicalRowDataType).toArray(new String[0])).withFieldTypes(DataType.getFieldDataTypes(physicalRowDataType).toArray(new DataType[0])).withPrimaryKey(primaryKeys).withPartitionKey(partitionKeys).build();
+        AbstractDatabendOutputFormat outputFormat = new AbstractDatabendOutputFormat.Builder()
+                .withOptions(options)
+                .withConnectionProperties(connectionProperties)
+                .withFieldNames(DataType.getFieldNames(physicalRowDataType).toArray(new String[0]))
+                .withFieldTypes(DataType.getFieldDataTypes(physicalRowDataType).toArray(new DataType[0]))
+                .withPrimaryKey(primaryKeys)
+                .withPartitionKey(partitionKeys)
+                .build();
         return OutputFormatProvider.of(outputFormat, options.getParallelism());
     }
 
-
     @Override
     public DynamicTableSink copy() {
-        DatabendDynamicTableSink sink = new DatabendDynamicTableSink(options, connectionProperties, primaryKeys, partitionKeys, physicalRowDataType);
+        DatabendDynamicTableSink sink = new DatabendDynamicTableSink(
+                options, connectionProperties, primaryKeys, partitionKeys, physicalRowDataType);
         sink.dynamicGrouping = dynamicGrouping;
         sink.staticPartitionSpec = staticPartitionSpec;
         return sink;

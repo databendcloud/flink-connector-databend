@@ -5,20 +5,27 @@ import javax.annotation.Nullable;
 public class DatabendReadOptions extends DatabendConnectionOptions {
     private static final long serialVersionUID = 1L;
 
-
     private final String partitionColumn;
     private final Integer partitionNum;
     private final Long partitionLowerBound;
     private final Long partitionUpperBound;
 
-    private DatabendReadOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName, String partitionColumn, Integer partitionNum, Long partitionLowerBound, Long partitionUpperBound) {
+    private DatabendReadOptions(
+            String url,
+            @Nullable String username,
+            @Nullable String password,
+            String databaseName,
+            String tableName,
+            String partitionColumn,
+            Integer partitionNum,
+            Long partitionLowerBound,
+            Long partitionUpperBound) {
         super(url, username, password, databaseName, tableName);
         this.partitionColumn = partitionColumn;
         this.partitionNum = partitionNum;
         this.partitionLowerBound = partitionLowerBound;
         this.partitionUpperBound = partitionUpperBound;
     }
-
 
     public String getPartitionColumn() {
         return partitionColumn;
@@ -75,7 +82,6 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
             return this;
         }
 
-
         public DatabendReadOptions.Builder withPartitionColumn(String partitionColumn) {
             this.partitionColumn = partitionColumn;
             return this;
@@ -97,7 +103,16 @@ public class DatabendReadOptions extends DatabendConnectionOptions {
         }
 
         public DatabendReadOptions build() {
-            return new DatabendReadOptions(url, username, password, databaseName, tableName, partitionColumn, partitionNum, partitionLowerBound, partitionUpperBound);
+            return new DatabendReadOptions(
+                    url,
+                    username,
+                    password,
+                    databaseName,
+                    tableName,
+                    partitionColumn,
+                    partitionNum,
+                    partitionLowerBound,
+                    partitionUpperBound);
         }
     }
 }

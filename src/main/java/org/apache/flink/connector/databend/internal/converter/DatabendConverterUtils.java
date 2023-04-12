@@ -1,16 +1,6 @@
 package org.apache.flink.connector.databend.internal.converter;
 
-import org.apache.flink.table.data.ArrayData;
-import org.apache.flink.table.data.DecimalData;
-import org.apache.flink.table.data.GenericArrayData;
-import org.apache.flink.table.data.GenericMapData;
-import org.apache.flink.table.data.MapData;
-import org.apache.flink.table.data.StringData;
-import org.apache.flink.table.data.TimestampData;
-import org.apache.flink.table.types.logical.ArrayType;
-import org.apache.flink.table.types.logical.DecimalType;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.flink.table.types.logical.MapType;
+import static org.apache.flink.connector.databend.util.DatabendUtil.toEpochDayOneTimestamp;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,8 +13,17 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.apache.flink.connector.databend.util.DatabendUtil.toEpochDayOneTimestamp;
+import org.apache.flink.table.data.ArrayData;
+import org.apache.flink.table.data.DecimalData;
+import org.apache.flink.table.data.GenericArrayData;
+import org.apache.flink.table.data.GenericMapData;
+import org.apache.flink.table.data.MapData;
+import org.apache.flink.table.data.StringData;
+import org.apache.flink.table.data.TimestampData;
+import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.MapType;
 
 /**
  * convert between internal and external data types.
@@ -62,7 +61,10 @@ public class DatabendConverterUtils {
             case DECIMAL:
                 return ((DecimalData) value).toBigDecimal();
             case ARRAY:
-                LogicalType elementType = ((ArrayType) type).getChildren().stream().findFirst().orElseThrow(() -> new RuntimeException("Unknown array element type"));
+                LogicalType elementType = ((ArrayType) type)
+                        .getChildren().stream()
+                                .findFirst()
+                                .orElseThrow(() -> new RuntimeException("Unknown array element type"));
                 ArrayData.ElementGetter elementGetter = ArrayData.createElementGetter(elementType);
                 ArrayData arrayData = ((ArrayData) value);
                 Object[] objectArray = new Object[arrayData.size()];
@@ -80,7 +82,9 @@ public class DatabendConverterUtils {
                 ArrayData valueArrayData = mapData.valueArray();
                 Map<Object, Object> objectMap = new HashMap<>(keyArrayData.size());
                 for (int i = 0; i < keyArrayData.size(); i++) {
-                    objectMap.put(toExternal(keyGetter.getElementOrNull(keyArrayData, i), keyType), toExternal(valueGetter.getElementOrNull(valueArrayData, i), valueType));
+                    objectMap.put(
+                            toExternal(keyGetter.getElementOrNull(keyArrayData, i), keyType),
+                            toExternal(valueGetter.getElementOrNull(valueArrayData, i), valueType));
                 }
                 return objectMap;
             case MULTISET:
@@ -113,7 +117,9 @@ public class DatabendConverterUtils {
             case DECIMAL:
                 final int precision = ((DecimalType) type).getPrecision();
                 final int scale = ((DecimalType) type).getScale();
-                return value instanceof BigInteger ? DecimalData.fromBigDecimal(new BigDecimal((BigInteger) value, 0), precision, scale) : DecimalData.fromBigDecimal((BigDecimal) value, precision, scale);
+                return value instanceof BigInteger
+                        ? DecimalData.fromBigDecimal(new BigDecimal((BigInteger) value, 0), precision, scale)
+                        : DecimalData.fromBigDecimal((BigDecimal) value, precision, scale);
             case DATE:
                 return (int) (((Date) value).toLocalDate().toEpochDay());
             case TIME_WITHOUT_TIME_ZONE:
@@ -127,7 +133,9 @@ public class DatabendConverterUtils {
             case VARCHAR:
                 return StringData.fromString((String) value);
             case ARRAY:
-                LogicalType elementType = type.getChildren().stream().findFirst().orElseThrow(() -> new RuntimeException("Unknown array element type"));
+                LogicalType elementType = type.getChildren().stream()
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Unknown array element type"));
                 Object externalArray = ((Array) value).getArray();
                 int externalArrayLength = java.lang.reflect.Array.getLength(externalArray);
                 Object[] internalArray = new Object[externalArrayLength];

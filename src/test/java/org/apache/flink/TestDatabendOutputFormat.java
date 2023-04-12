@@ -1,5 +1,15 @@
 package org.apache.flink;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Properties;
 import org.apache.flink.connector.databend.config.DatabendConfigOptions;
 import org.apache.flink.connector.databend.internal.AbstractDatabendOutputFormat;
 import org.apache.flink.connector.databend.internal.DatabendBatchOutputFormat;
@@ -18,36 +28,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 public class TestDatabendOutputFormat {
 
     // Create a list of DataType objects to mock
-    DataType[] dataTypeList = {
-            DataTypes.STRING(),
-            DataTypes.STRING()
-    };
+    DataType[] dataTypeList = {DataTypes.STRING(), DataTypes.STRING()};
 
-    LogicalType[] logicalTypeList = Arrays.stream(dataTypeList).map(DataType::getLogicalType).toArray(LogicalType[]::new);
+    LogicalType[] logicalTypeList =
+            Arrays.stream(dataTypeList).map(DataType::getLogicalType).toArray(LogicalType[]::new);
 
-    private static Connection createConnection()
-            throws SQLException {
+    private static Connection createConnection() throws SQLException {
         String url = "jdbc:databend://localhost:8000";
         return DriverManager.getConnection(url, "root", "root");
     }
 
     @BeforeAll
-    public static void setUp()
-            throws SQLException {
+    public static void setUp() throws SQLException {
         // create table
         Connection c = createConnection();
         c.createStatement().execute("drop database if exists test_output_format");
@@ -72,12 +67,7 @@ public class TestDatabendOutputFormat {
         m.put("properties.table-name", "test");
         Properties properties = DatabendUtil.getDatabendProperties(m);
         DatabendConnectionOptions databendConnectionOptions = new DatabendConnectionOptions(
-                "databend://localhost:8000",
-                "root",
-                "root",
-                "test_output_format",
-                "test"
-        );
+                "databend://localhost:8000", "root", "root", "test_output_format", "test");
 
         DatabendDmlOptions databendDmlOptions = new DatabendDmlOptions(
                 "databend://localhost:8000",
@@ -90,18 +80,15 @@ public class TestDatabendOutputFormat {
                 3,
                 DatabendConfigOptions.SinkUpdateStrategy.INSERT,
                 true,
-                1
-        );
+                1);
 
-        DatabendConnectionProvider databendConnectionProvider = new DatabendConnectionProvider(
-                databendConnectionOptions, properties
-        );
+        DatabendConnectionProvider databendConnectionProvider =
+                new DatabendConnectionProvider(databendConnectionOptions, properties);
         Connection connection = databendConnectionProvider.getOrCreateConnection();
 
         String[] fields = {"x", "y"};
         String[] primaryKeys = {};
         String[] partitionKeys = {"x"};
-
 
         AbstractDatabendOutputFormat abstractDatabendOutputFormat = new AbstractDatabendOutputFormat.Builder()
                 .withOptions(databendDmlOptions)
@@ -112,15 +99,8 @@ public class TestDatabendOutputFormat {
                 .withPrimaryKey(primaryKeys)
                 .build();
 
-
         DatabendBatchOutputFormat databendBatchOutputFormat = new DatabendBatchOutputFormat(
-                databendConnectionProvider,
-                fields,
-                primaryKeys,
-                partitionKeys,
-                logicalTypeList,
-                databendDmlOptions
-        );
+                databendConnectionProvider, fields, primaryKeys, partitionKeys, logicalTypeList, databendDmlOptions);
 
         assertNotNull(databendBatchOutputFormat);
         databendBatchOutputFormat.open(1, 1);

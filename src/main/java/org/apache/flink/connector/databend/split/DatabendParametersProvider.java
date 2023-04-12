@@ -33,7 +33,6 @@ public abstract class DatabendParametersProvider {
 
     // -------------------------- Methods for local tables --------------------------
 
-
     /**
      * Builder.
      */
@@ -73,7 +72,5 @@ public abstract class DatabendParametersProvider {
             this.useLocal = useLocal;
             return this;
         }
-
     }
 }
-

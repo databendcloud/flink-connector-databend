@@ -15,7 +15,6 @@ public class DatabendConfig {
 
     public static final String TABLE_NAME = "table-name";
 
-
     public static final String SINK_BATCH_SIZE = "sink.batch-size";
 
     public static final String SINK_FLUSH_INTERVAL = "sink.flush-interval";
@@ -25,5 +24,4 @@ public class DatabendConfig {
     public static final String SINK_UPDATE_STRATEGY = "sink.update-strategy";
 
     public static final String SINK_IGNORE_DELETE = "sink.ignore-delete";
-
 }

@@ -1,10 +1,8 @@
 package org.apache.flink.connector.databend.internal.options;
 
-import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy;
-
-import javax.annotation.Nullable;
 import java.time.Duration;
-
+import javax.annotation.Nullable;
+import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy;
 
 /**
  * Databend data modify language options.
@@ -21,12 +19,22 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
 
     private final SinkUpdateStrategy updateStrategy;
 
-
     private final boolean ignoreDelete;
 
     private final Integer parallelism;
 
-    public DatabendDmlOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName, int batchSize, Duration flushInterval, int maxRetires, SinkUpdateStrategy updateStrategy, boolean ignoreDelete, Integer parallelism) {
+    public DatabendDmlOptions(
+            String url,
+            @Nullable String username,
+            @Nullable String password,
+            String databaseName,
+            String tableName,
+            int batchSize,
+            Duration flushInterval,
+            int maxRetires,
+            SinkUpdateStrategy updateStrategy,
+            boolean ignoreDelete,
+            Integer parallelism) {
         super(url, username, password, databaseName, tableName);
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;
@@ -48,11 +56,9 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         return this.maxRetries;
     }
 
-
     public SinkUpdateStrategy getUpdateStrategy() {
         return updateStrategy;
     }
-
 
     public boolean isIgnoreDelete() {
         return this.ignoreDelete;
@@ -78,8 +84,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         private boolean ignoreDelete;
         private Integer parallelism;
 
-        public Builder() {
-        }
+        public Builder() {}
 
         public DatabendDmlOptions.Builder withUrl(String url) {
             this.url = url;
@@ -126,7 +131,6 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
             return this;
         }
 
-
         public DatabendDmlOptions.Builder withIgnoreDelete(boolean ignoreDelete) {
             this.ignoreDelete = ignoreDelete;
             return this;
@@ -138,7 +142,18 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         }
 
         public DatabendDmlOptions build() {
-            return new DatabendDmlOptions(url, username, password, databaseName, tableName, batchSize, flushInterval, maxRetries, updateStrategy, ignoreDelete, parallelism);
+            return new DatabendDmlOptions(
+                    url,
+                    username,
+                    password,
+                    databaseName,
+                    tableName,
+                    batchSize,
+                    flushInterval,
+                    maxRetries,
+                    updateStrategy,
+                    ignoreDelete,
+                    parallelism);
         }
     }
 }

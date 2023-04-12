@@ -9,4 +9,3 @@ public abstract class Expression implements Serializable {
 
     public abstract String explain();
 }
-

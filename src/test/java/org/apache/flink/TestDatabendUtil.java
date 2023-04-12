@@ -1,18 +1,14 @@
 package org.apache.flink;
 
-import com.databend.jdbc.DatabendColumnInfo;
-import org.apache.flink.connector.databend.util.DatabendUtil;
-import org.junit.jupiter.api.Test;
-
-import javax.xml.crypto.Data;
-import java.sql.Timestamp;
-import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Properties;
-
 import static org.apache.flink.table.utils.DateTimeUtils.toLocalDate;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.sql.Timestamp;
+import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Properties;
+import org.apache.flink.connector.databend.util.DatabendUtil;
+import org.junit.jupiter.api.Test;
 
 public class TestDatabendUtil {
 
@@ -44,4 +40,3 @@ public class TestDatabendUtil {
         assertSame(properties.get("username"), "root");
     }
 }
-

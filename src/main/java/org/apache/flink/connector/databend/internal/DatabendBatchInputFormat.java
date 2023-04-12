@@ -1,21 +1,18 @@
 package org.apache.flink.connector.databend.internal;
 
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
-import org.apache.flink.connector.databend.internal.converter.DatabendRowConverter;
-import org.apache.flink.connector.databend.internal.options.DatabendConnectionOptions;
-import org.apache.flink.connector.databend.internal.options.DatabendReadOptions;
-import org.apache.flink.core.io.InputSplit;
-import org.apache.flink.table.data.RowData;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
+import org.apache.flink.connector.databend.internal.converter.DatabendRowConverter;
+import org.apache.flink.connector.databend.internal.options.DatabendReadOptions;
+import org.apache.flink.core.io.InputSplit;
+import org.apache.flink.table.data.RowData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabendBatchInputFormat extends AbstractDatabendInputFormat {
     private static final Logger LOG = LoggerFactory.getLogger(DatabendBatchOutputFormat.class);
@@ -30,7 +27,16 @@ public class DatabendBatchInputFormat extends AbstractDatabendInputFormat {
     private transient ResultSet resultSet;
     private transient boolean hasNext;
 
-    public DatabendBatchInputFormat(DatabendConnectionProvider connectionProvider, DatabendRowConverter rowConverter, DatabendReadOptions readOptions, String[] fieldNames, TypeInformation<RowData> rowDataTypeInfo, Object[][] parameterValues, String parameterClause, String filterClause, long limit) {
+    public DatabendBatchInputFormat(
+            DatabendConnectionProvider connectionProvider,
+            DatabendRowConverter rowConverter,
+            DatabendReadOptions readOptions,
+            String[] fieldNames,
+            TypeInformation<RowData> rowDataTypeInfo,
+            Object[][] parameterValues,
+            String parameterClause,
+            String filterClause,
+            long limit) {
         super(fieldNames, rowDataTypeInfo, parameterValues, parameterClause, filterClause, limit);
         this.connectionProvider = connectionProvider;
         this.rowConverter = rowConverter;

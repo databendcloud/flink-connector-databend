@@ -1,9 +1,8 @@
 package org.apache.flink.connector.databend.internal.options;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Optional;
-
+import javax.annotation.Nullable;
 
 /**
  * Databend connection options.
@@ -22,7 +21,8 @@ public class DatabendConnectionOptions implements Serializable {
 
     private final String tableName;
 
-    public DatabendConnectionOptions(String url, @Nullable String username, @Nullable String password, String databaseName, String tableName) {
+    public DatabendConnectionOptions(
+            String url, @Nullable String username, @Nullable String password, String databaseName, String tableName) {
         this.url = url;
         this.username = username;
         this.password = password;

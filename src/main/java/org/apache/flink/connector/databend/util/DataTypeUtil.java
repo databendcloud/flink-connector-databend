@@ -1,13 +1,12 @@
 package org.apache.flink.connector.databend.util;
 
 import com.databend.jdbc.DatabendColumnInfo;
-import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.table.catalog.exceptions.CatalogException;
-import org.apache.flink.table.types.DataType;
-
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.catalog.exceptions.CatalogException;
+import org.apache.flink.table.types.DataType;
 
 /**
  * Type utils.
@@ -45,18 +44,18 @@ public class DataTypeUtil {
             case DatabendTypes.DATETIME64:
                 return DataTypes.TIMESTAMP(columnInfo.getScale());
             case DatabendTypes.ARRAY:
-//                String arrayBaseType =
-//                        getInternalDatabendType(databendColumnInfo.getOriginalTypeName());
-//                DatabendColumnInfo arrayBaseColumnInfo =
-//                        DatabendColumnInfo.parse(
-//                                arrayBaseType,
-//                                databendColumnInfo.getColumnName() + ".array_base",
-//                                databendColumnInfo.getTimeZone());
-//                return DataTypes.ARRAY(toFlinkType(arrayBaseColumnInfo));
+                //                String arrayBaseType =
+                //                        getInternalDatabendType(databendColumnInfo.getOriginalTypeName());
+                //                DatabendColumnInfo arrayBaseColumnInfo =
+                //                        DatabendColumnInfo.parse(
+                //                                arrayBaseType,
+                //                                databendColumnInfo.getColumnName() + ".array_base",
+                //                                databendColumnInfo.getTimeZone());
+                //                return DataTypes.ARRAY(toFlinkType(arrayBaseColumnInfo));
             case DatabendTypes.VARIANT_OBJECT:
-//                return DataTypes.MAP(
-//                        toFlinkType(databendColumnInfo.getKeyInfo()),
-//                        toFlinkType(databendColumnInfo.getValueInfo()));
+                //                return DataTypes.MAP(
+                //                        toFlinkType(databendColumnInfo.getKeyInfo()),
+                //                        toFlinkType(databendColumnInfo.getValueInfo()));
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported type:" + columnInfo.getColumnTypeName().toLowerCase(Locale.US));
@@ -68,9 +67,7 @@ public class DataTypeUtil {
         if (matcher.find()) {
             return matcher.group("type");
         } else {
-            throw new CatalogException(
-                    String.format("No content found in the bucket of '%s'", databendTypeLiteral));
+            throw new CatalogException(String.format("No content found in the bucket of '%s'", databendTypeLiteral));
         }
     }
 }
-

@@ -1,9 +1,9 @@
 package org.apache.flink.connector.databend.internal.schema;
 
-import javax.annotation.Nonnull;
-
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.StringUtils.isNullOrWhitespaceOnly;
+
+import javax.annotation.Nonnull;
 
 /** Column expression. */
 public class FieldExpr extends Expression {
@@ -28,4 +28,3 @@ public class FieldExpr extends Expression {
         return columnName;
     }
 }
-
