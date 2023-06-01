@@ -1,14 +1,6 @@
 package org.apache.flink.connector.databend.internal.executor;
 
-import static org.apache.flink.table.data.RowData.createFieldGetter;
-
 import com.databend.jdbc.DatabendPreparedStatement;
-import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.connector.databend.internal.DatabendStatementFactory;
@@ -21,6 +13,15 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.IntStream;
+
+import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**
  * Executor interface for submitting data to Databend.
@@ -94,8 +95,7 @@ public interface DatabendExecutor extends Serializable {
             LogicalType[] fieldTypes,
             DatabendDmlOptions options) {
         String insertSql = DatabendStatementFactory.getInsertIntoStatement(tableName, fieldNames);
-        String updateSql = DatabendStatementFactory.getUpdateStatement(
-                tableName, databaseName, fieldNames, keyFields, partitionFields);
+        String updateSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames,keyFields);
         String deleteSql = DatabendStatementFactory.getDeleteStatement(tableName, databaseName, keyFields);
 
         // Re-sort the order of fields to fit the sql statement.

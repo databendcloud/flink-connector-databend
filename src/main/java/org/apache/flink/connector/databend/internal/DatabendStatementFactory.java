@@ -1,10 +1,11 @@
 package org.apache.flink.connector.databend.internal;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Arrays;
-import org.apache.commons.lang3.ArrayUtils;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Create an insert/update/delete Databend statement.
@@ -13,7 +14,8 @@ public class DatabendStatementFactory {
 
     private static final String EMPTY = "";
 
-    private DatabendStatementFactory() {}
+    private DatabendStatementFactory() {
+    }
 
     public static String getSelectStatement(String tableName, String databaseName, String[] fieldNames) {
         String columns = Arrays.stream(fieldNames)
@@ -29,6 +31,18 @@ public class DatabendStatementFactory {
         String placeholders = Arrays.stream(fieldNames).map((f) -> "?").collect(joining(", "));
         return String.join(
                 EMPTY, "INSERT INTO ", quoteIdentifier(tableName), "(", columns, ") VALUES (", placeholders, ")");
+    }
+
+    public static String getReplaceIntoStatement(String tableName, String[] fieldNames, String[] keyFields) {
+        String columns = Arrays.stream(fieldNames)
+                .map(DatabendStatementFactory::quoteIdentifier)
+                .collect(joining(", "));
+        String conflictKeys = Arrays.stream(keyFields)
+                .map(DatabendStatementFactory::quoteIdentifier)
+                .collect(joining(", "));
+        String placeholders = Arrays.stream(fieldNames).map((f) -> "?").collect(joining(", "));
+        return String.join(
+                EMPTY, "REPLACE INTO ", quoteIdentifier(tableName), "(", columns,") ON (",conflictKeys, ") VALUES (", placeholders, ")");
     }
 
     public static String getUpdateStatement(

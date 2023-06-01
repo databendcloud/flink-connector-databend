@@ -1,9 +1,9 @@
 package org.apache.flink;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.apache.flink.connector.databend.internal.DatabendStatementFactory;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestDatabendStatementFactory {
     @Test
@@ -16,11 +16,11 @@ public class TestDatabendStatementFactory {
         assertEquals("INSERT INTO `test`(`column1`, `column2`) VALUES (?, ?)", insertStatement);
 
         String[] keyFields = {"column1"};
-        String[] partitionFields = {"column2"};
+//        String[] partitionFields = {"column2"};
 
-        // TODO: use upsert of databend
-        String updateStatement =
-                DatabendStatementFactory.getUpdateStatement("test", "default", fields, keyFields, partitionFields);
-        System.out.println(updateStatement);
+        String replaceIntoStatement = DatabendStatementFactory.getReplaceIntoStatement("test", fields, keyFields);
+        System.out.println(replaceIntoStatement);
+        assertEquals("REPLACE INTO `test`(`column1`, `column2`) ON (`column1`) VALUES (?, ?)", replaceIntoStatement);
+
     }
 }
