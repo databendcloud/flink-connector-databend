@@ -1,14 +1,6 @@
 package org.apache.flink.connector.databend.internal.executor;
 
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.DISCARD;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.INSERT;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.UPDATE;
-
 import com.databend.jdbc.DatabendPreparedStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.function.Function;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
@@ -17,6 +9,13 @@ import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.data.RowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.function.Function;
+
+import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.*;
 
 /**
  * Databend's upsert executor.
@@ -103,6 +102,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
                 insertStmt.addBatch();
                 break;
             case UPDATE_AFTER:
+                // config different update strategy according to dml config options
                 if (INSERT.equals(updateStrategy)) {
                     insertConverter.toExternal(record, insertStmt);
                     insertStmt.addBatch();
