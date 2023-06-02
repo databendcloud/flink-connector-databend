@@ -26,6 +26,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
     Logger LOG = LoggerFactory.getLogger(DatabendExecutor.class);
 
     private final String insertSql;
+    private final String upsertSql;
 
     private final String updateSql;
 
@@ -51,12 +52,15 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     private transient DatabendPreparedStatement updateStmt;
 
+    private transient DatabendPreparedStatement upsertStmt;
+
     private transient DatabendPreparedStatement deleteStmt;
 
     private transient DatabendConnectionProvider connectionProvider;
 
     public DatabendUpsertExecutor(
             String insertSql,
+            String upsertSql,
             String updateSql,
             String deleteSql,
             DatabendRowConverter insertConverter,
@@ -66,6 +70,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
             Function<RowData, RowData> deleteExtractor,
             DatabendDmlOptions options) {
         this.insertSql = insertSql;
+        this.upsertSql = upsertSql;
         this.updateSql = updateSql;
         this.deleteSql = deleteSql;
         this.insertConverter = insertConverter;
@@ -81,6 +86,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
     @Override
     public void prepareStatement(Connection connection) throws SQLException {
         this.insertStmt = (DatabendPreparedStatement) connection.prepareStatement(this.insertSql);
+        this.upsertStmt = (DatabendPreparedStatement) connection.prepareStatement(this.upsertSql);
         this.updateStmt = (DatabendPreparedStatement) connection.prepareStatement(this.updateSql);
         this.deleteStmt = (DatabendPreparedStatement) connection.prepareStatement(this.deleteSql);
     }
@@ -92,7 +98,8 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
     }
 
     @Override
-    public void setRuntimeContext(RuntimeContext context) {}
+    public void setRuntimeContext(RuntimeContext context) {
+    }
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
@@ -107,8 +114,8 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
                     insertConverter.toExternal(record, insertStmt);
                     insertStmt.addBatch();
                 } else if (UPDATE.equals(updateStrategy)) {
-                    updateConverter.toExternal(updateExtractor.apply(record), updateStmt);
-                    updateStmt.addBatch();
+                    updateConverter.toExternal(updateExtractor.apply(record), upsertStmt);
+                    upsertStmt.addBatch();
                 } else if (DISCARD.equals(updateStrategy)) {
                     LOG.debug("Discard a record of type UPDATE_AFTER: {}", record);
                 } else {
@@ -132,7 +139,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     @Override
     public void executeBatch() throws SQLException {
-        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
+        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, upsertStmt)) {
             if (databendPreparedStatement != null) {
                 attemptExecuteBatch(databendPreparedStatement, maxRetries);
             }
@@ -141,7 +148,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     @Override
     public void closeStatement() {
-        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, updateStmt, deleteStmt)) {
+        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, upsertStmt)) {
             if (databendPreparedStatement != null) {
                 try {
                     databendPreparedStatement.close();
@@ -154,7 +161,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     @Override
     public String toString() {
-        return "DatabendUpsertExecutor{" + "insertSql='" + insertSql + '\'' + ", updateSql='" + updateSql + '\''
+        return "DatabendUpsertExecutor{" + "insertSql='" + insertSql + '\'' +  "upsertSql='" + upsertSql + '\'' + ", updateSql='" + updateSql + '\''
                 + ", deleteSql='" + deleteSql + '\'' + ", maxRetries=" + maxRetries + ", updateStrategy="
                 + updateStrategy + ", ignoreDelete=" + ignoreDelete + ", connectionProvider=" + connectionProvider
                 + '}';

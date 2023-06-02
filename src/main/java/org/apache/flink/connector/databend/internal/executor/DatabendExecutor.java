@@ -95,7 +95,8 @@ public interface DatabendExecutor extends Serializable {
             LogicalType[] fieldTypes,
             DatabendDmlOptions options) {
         String insertSql = DatabendStatementFactory.getInsertIntoStatement(tableName, fieldNames);
-        String updateSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames,keyFields);
+        String upsertSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
+        String updateSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
         String deleteSql = DatabendStatementFactory.getDeleteStatement(tableName, databaseName, keyFields);
 
         // Re-sort the order of fields to fit the sql statement.
@@ -106,7 +107,7 @@ public interface DatabendExecutor extends Serializable {
                 .filter(idx -> !ArrayUtils.contains(keyFields, fieldNames[idx]))
                 .filter(idx -> !ArrayUtils.contains(partitionFields, fieldNames[idx]))
                 .toArray();
-        int[] updFields = ArrayUtils.addAll(updatableFields, delFields);
+        int[] updFields = ArrayUtils.addAll(delFields, updatableFields);
 
         LogicalType[] delTypes =
                 Arrays.stream(delFields).mapToObj(f -> fieldTypes[f]).toArray(LogicalType[]::new);
@@ -115,6 +116,7 @@ public interface DatabendExecutor extends Serializable {
 
         return new DatabendUpsertExecutor(
                 insertSql,
+                upsertSql,
                 updateSql,
                 deleteSql,
                 new DatabendRowConverter(RowType.of(fieldTypes)),

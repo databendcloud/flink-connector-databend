@@ -71,14 +71,12 @@ public class DatabendStatementFactory {
         String conditionClause = Arrays.stream(conditionFields)
                 .map((f) -> quoteIdentifier(f) + "=?")
                 .collect(joining(" AND "));
-        String onClusterClause = "";
 
         return String.join(
                 EMPTY,
-                "ALTER TABLE ",
+                "DELETE FROM ",
                 fromTableClause(tableName, databaseName),
-                onClusterClause,
-                " DELETE WHERE ",
+                " WHERE ",
                 conditionClause);
     }
 
