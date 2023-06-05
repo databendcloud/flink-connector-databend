@@ -1,10 +1,5 @@
 package org.apache.flink;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.time.Duration;
-import java.util.Properties;
 import org.apache.flink.connector.databend.DatabendDynamicTableSink;
 import org.apache.flink.connector.databend.config.DatabendConfigOptions;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
@@ -13,6 +8,12 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestDatabendDynamicTableSink {
 
@@ -41,6 +42,7 @@ public class TestDatabendDynamicTableSink {
                 Duration.ofSeconds(100),
                 3,
                 DatabendConfigOptions.SinkUpdateStrategy.INSERT,
+                new String[]{},
                 true,
                 1);
 
@@ -79,6 +81,7 @@ public class TestDatabendDynamicTableSink {
                 Duration.ofSeconds(100),
                 3,
                 DatabendConfigOptions.SinkUpdateStrategy.INSERT,
+                new String[]{},
                 true,
                 1);
 

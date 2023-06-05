@@ -1,17 +1,5 @@
 package org.apache.flink.connector.databend.internal;
 
-import static java.util.stream.Collectors.toList;
-
-import java.io.Flushable;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
@@ -26,6 +14,19 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Flushable;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Abstract class of Databend output format.
@@ -153,7 +154,7 @@ public abstract class AbstractDatabendOutputFormat extends RichOutputFormat<RowD
             return this;
         }
 
-        public AbstractDatabendOutputFormat.Builder withPrimaryKey(String[] primaryKeys) {
+        public AbstractDatabendOutputFormat.Builder withPrimaryKeys(String[] primaryKeys) {
             this.primaryKeys = primaryKeys;
             return this;
         }

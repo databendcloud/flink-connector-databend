@@ -4,24 +4,25 @@
 for [Databend](https://github.com/datafuselabs/databend) database, this project Powered
 by [Databend JDBC](https://github.com/databendcloud/databend-jdbc).
 
-Currently, the project supports `Sink Table` and `Flink Catalog`.  
+Currently, the project supports `Sink Table`.  
 Please create issues if you encounter bugs and any help for the project is greatly appreciated.
 
 ## Connector Options
 
-| Option                     | Required | Default  | Type     | Description                                                                                                              |
-|:---------------------------| :------- |:---------|:---------|:-------------------------------------------------------------------------------------------------------------------------|
-| url                        | required | none     | String   | The Databend jdbc url in format `databend://<host>:<port>`.                                                              |
-| username                   | optional | none     | String   | The 'username' and 'password' must both be specified if any of them is specified.                                        |
-| password                   | optional | none     | String   | The Databend password.                                                                                                   |
-| database-name              | optional | default  | String   | The Databend database name.                                                                                              |
-| table-name                 | required | none     | String   | The Databend table name.                                                                                                 |
-| sink.batch-size            | optional | 1000     | Integer  | The max flush size, over this will flush data.                                                                           |
-| sink.flush-interval        | optional | 1s       | Duration | Over this flush interval mills, asynchronous threads will flush data.                                                    |
-| sink.max-retries           | optional | 3        | Integer  | The max retry times when writing records to the database failed.                                                         |
-| sink.update-strategy       | optional | update   | String   | Convert a record of type UPDATE_AFTER to update/insert statement or just discard it, available: update, insert, discard. |
+| Option               | Required | Default | Type      | Description                                                                                                              |
+|:---------------------| :------- |:--------|:----------|:-------------------------------------------------------------------------------------------------------------------------|
+| url                  | required | none    | String    | The Databend jdbc url in format `databend://<host>:<port>`.                                                              |
+| username             | optional | none    | String    | The 'username' and 'password' must both be specified if any of them is specified.                                        |
+| password             | optional | none    | String    | The Databend password.                                                                                                   |
+| database-name        | optional | default | String    | The Databend database name.                                                                                              |
+| table-name           | required | none    | String    | The Databend table name.                                                                                                 |
+| sink.batch-size      | optional | 1000    | Integer   | The max flush size, over this will flush data.                                                                           |
+| sink.flush-interval  | optional | 1s      | Duration  | Over this flush interval mills, asynchronous threads will flush data.                                                    |
+| sink.max-retries     | optional | 3       | Integer   | The max retry times when writing records to the database failed.                                                         |
+| sink.update-strategy | optional | update  | String    | Convert a record of type UPDATE_AFTER to update/insert statement or just discard it, available: update, insert, discard. |
+| sink.primary-keys    | optional | ["id"]  | String    | The primary key used in upsert                                                                                           |
 
-**Update/Delete Data Considerations:**
+**Upsert Data Considerations:**
 
 ## Data Type Mapping
 
@@ -99,7 +100,7 @@ CREATE TABLE t_user (
     `score` DOUBLE,
     `list` ARRAY<STRING>,
     `map` Map<STRING, BIGINT>,
-    PRIMARY KEY (`user_id`) NOT ENFORCED
+
 ) WITH (
     'connector' = 'databend',
     'url' = 'databend://{ip}:{port}',
@@ -107,7 +108,8 @@ CREATE TABLE t_user (
     'table-name' = 'users',
     'sink.batch-size' = '500',
     'sink.flush-interval' = '1000',
-    'sink.max-retries' = '3'
+    'sink.max-retries' = '3',
+    'sink.primary-keys' = '[user_id]'
 );
 
 -- read data from databend 
@@ -155,24 +157,6 @@ tEnv.registerCatalog("databend", databendcatalog);
 tEnv.useCatalog("databend");
 
 tEnv.executeSql("insert into `databend`.`default`.`t_table` select...");
-```
-
-#### SQL
-
-```sql
-> CREATE CATALOG databend WITH (
-    'type' = 'databend',
-    'url' = 'databend://127.0.0.1:8000',
-    'username' = 'username',
-    'password' = 'password',
-    'database-name' = 'default',
-    'use-local' = 'false',
-    ...
-);
-
-> USE CATALOG databend;
-> SELECT user_id, user_type FROM `default`.`t_user` limit 10;
-> INSERT INTO `default`.`t_user` SELECT ...;
 ```
 
 ## Roadmap

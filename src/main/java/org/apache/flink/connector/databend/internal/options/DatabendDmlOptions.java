@@ -1,8 +1,9 @@
 package org.apache.flink.connector.databend.internal.options;
 
-import java.time.Duration;
-import javax.annotation.Nullable;
 import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy;
+
+import javax.annotation.Nullable;
+import java.time.Duration;
 
 /**
  * Databend data modify language options.
@@ -18,6 +19,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
     private final int maxRetries;
 
     private final SinkUpdateStrategy updateStrategy;
+    private final String[] primaryKeys;
 
     private final boolean ignoreDelete;
 
@@ -33,6 +35,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
             Duration flushInterval,
             int maxRetires,
             SinkUpdateStrategy updateStrategy,
+            String[] primaryKeys,
             boolean ignoreDelete,
             Integer parallelism) {
         super(url, username, password, databaseName, tableName);
@@ -40,6 +43,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         this.flushInterval = flushInterval;
         this.maxRetries = maxRetires;
         this.updateStrategy = updateStrategy;
+        this.primaryKeys = primaryKeys;
         this.ignoreDelete = ignoreDelete;
         this.parallelism = parallelism;
     }
@@ -58,6 +62,10 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
 
     public SinkUpdateStrategy getUpdateStrategy() {
         return updateStrategy;
+    }
+
+    public String[] getPrimaryKeys(){
+        return primaryKeys;
     }
 
     public boolean isIgnoreDelete() {
@@ -82,9 +90,11 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         private int maxRetries;
         private SinkUpdateStrategy updateStrategy;
         private boolean ignoreDelete;
+        private String[] primaryKey;
         private Integer parallelism;
 
-        public Builder() {}
+        public Builder() {
+        }
 
         public DatabendDmlOptions.Builder withUrl(String url) {
             this.url = url;
@@ -131,6 +141,11 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
             return this;
         }
 
+        public DatabendDmlOptions.Builder withPrimaryKey(String[] primaryKey) {
+            this.primaryKey = primaryKey;
+            return this;
+        }
+
         public DatabendDmlOptions.Builder withIgnoreDelete(boolean ignoreDelete) {
             this.ignoreDelete = ignoreDelete;
             return this;
@@ -152,6 +167,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
                     flushInterval,
                     maxRetries,
                     updateStrategy,
+                    primaryKey,
                     ignoreDelete,
                     parallelism);
         }
