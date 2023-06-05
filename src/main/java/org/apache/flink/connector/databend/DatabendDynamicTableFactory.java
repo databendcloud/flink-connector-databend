@@ -1,19 +1,10 @@
 package org.apache.flink.connector.databend;
 
-import static org.apache.flink.connector.databend.config.DatabendConfig.IDENTIFIER;
-import static org.apache.flink.connector.databend.config.DatabendConfig.PROPERTIES_PREFIX;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.*;
-import static org.apache.flink.connector.databend.util.DatabendUtil.getDatabendProperties;
-
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.connector.databend.internal.options.DatabendReadOptions;
 import org.apache.flink.table.catalog.ResolvedCatalogTable;
-import org.apache.flink.table.catalog.UniqueConstraint;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSinkFactory;
@@ -21,12 +12,22 @@ import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+import static org.apache.flink.connector.databend.config.DatabendConfig.IDENTIFIER;
+import static org.apache.flink.connector.databend.config.DatabendConfig.PROPERTIES_PREFIX;
+import static org.apache.flink.connector.databend.config.DatabendConfigOptions.*;
+import static org.apache.flink.connector.databend.util.DatabendUtil.getDatabendProperties;
+
 /**
  * A {@link DynamicTableSinkFactory} for discovering {@link DatabendDynamicTableSink}.
  */
 public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
 
-    public DatabendDynamicTableFactory() {}
+    public DatabendDynamicTableFactory() {
+    }
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -36,18 +37,18 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         validateConfigOptions(config);
 
         ResolvedCatalogTable catalogTable = context.getCatalogTable();
-        String[] primaryKeys = catalogTable
-                .getResolvedSchema()
-                .getPrimaryKey()
-                .map(UniqueConstraint::getColumns)
-                .map(keys -> keys.toArray(new String[0]))
-                .orElse(new String[0]);
+//        String[] primaryKeys = catalogTable
+//                .getResolvedSchema()
+//                .getPrimaryKey()
+//                .map(UniqueConstraint::getColumns)
+//                .map(keys -> keys.toArray(new String[0]))
+//                .orElse(new String[0]);
         Properties databendProperties =
                 getDatabendProperties(context.getCatalogTable().getOptions());
         return new DatabendDynamicTableSink(
                 getDmlOptions(config),
                 databendProperties,
-                primaryKeys,
+                getDmlOptions(config).getPrimaryKeys(),
                 catalogTable.getPartitionKeys().toArray(new String[0]),
                 context.getPhysicalRowDataType());
     }
@@ -88,6 +89,7 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         optionalOptions.add(SINK_FLUSH_INTERVAL);
         optionalOptions.add(SINK_MAX_RETRIES);
         optionalOptions.add(SINK_UPDATE_STRATEGY);
+        optionalOptions.add(SINK_PRIMARY_KEYS);
         optionalOptions.add(SINK_IGNORE_DELETE);
         optionalOptions.add(SINK_PARALLELISM);
         return optionalOptions;
@@ -111,6 +113,7 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
                 .withFlushInterval(config.get(SINK_FLUSH_INTERVAL))
                 .withMaxRetries(config.get(SINK_MAX_RETRIES))
                 .withUpdateStrategy(config.get(SINK_UPDATE_STRATEGY))
+                .withPrimaryKey(config.get(SINK_PRIMARY_KEYS).toArray(new String[0]))
                 .withIgnoreDelete(config.get(SINK_IGNORE_DELETE))
                 .withParallelism(config.get(SINK_PARALLELISM))
                 .build();

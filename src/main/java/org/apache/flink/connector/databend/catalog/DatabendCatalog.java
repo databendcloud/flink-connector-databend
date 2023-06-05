@@ -1,18 +1,7 @@
 package org.apache.flink.connector.databend.catalog;
 
-import static org.apache.flink.connector.databend.config.DatabendConfig.*;
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.StringUtils.isNullOrWhitespaceOnly;
-
 import com.databend.jdbc.DatabendColumnInfo;
 import com.databend.jdbc.DatabendResultSetMetaData;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.*;
-import javax.annotation.Nullable;
 import org.apache.flink.connector.databend.DatabendDynamicTableFactory;
 import org.apache.flink.connector.databend.util.DataTypeUtil;
 import org.apache.flink.connector.databend.util.DatabendUtil;
@@ -26,6 +15,18 @@ import org.apache.flink.table.factories.Factory;
 import org.apache.flink.table.types.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.*;
+
+import static org.apache.flink.connector.databend.config.DatabendConfig.*;
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.StringUtils.isNullOrWhitespaceOnly;
 
 public class DatabendCatalog extends AbstractCatalog {
     private static final Logger LOG = LoggerFactory.getLogger(DatabendCatalog.class);
@@ -113,7 +114,7 @@ public class DatabendCatalog extends AbstractCatalog {
     public synchronized List<String> listDatabases() throws CatalogException {
         // Sometimes we need to look up database `system`, so we won't get rid of it.
         try (PreparedStatement stmt = connection.prepareStatement("SELECT name from `system`.databases");
-                ResultSet rs = stmt.executeQuery()) {
+             ResultSet rs = stmt.executeQuery()) {
             List<String> databases = new ArrayList<>();
 
             while (rs.next()) {
@@ -170,8 +171,8 @@ public class DatabendCatalog extends AbstractCatalog {
         }
 
         try (PreparedStatement stmt = connection.prepareStatement(
-                        String.format("SELECT name from `system`.tables where database = '%s'", databaseName));
-                ResultSet rs = stmt.executeQuery()) {
+                String.format("SELECT name from `system`.tables where database = '%s'", databaseName));
+             ResultSet rs = stmt.executeQuery()) {
             List<String> tables = new ArrayList<>();
 
             while (rs.next()) {
@@ -290,7 +291,7 @@ public class DatabendCatalog extends AbstractCatalog {
     @Override
     public List<CatalogPartitionSpec> listPartitions(ObjectPath tablePath, CatalogPartitionSpec partitionSpec)
             throws TableNotExistException, TableNotPartitionedException, PartitionSpecInvalidException,
-                    CatalogException {
+            CatalogException {
         return Collections.emptyList();
     }
 
@@ -318,7 +319,7 @@ public class DatabendCatalog extends AbstractCatalog {
             CatalogPartition partition,
             boolean ignoreIfExists)
             throws TableNotExistException, TableNotPartitionedException, PartitionSpecInvalidException,
-                    PartitionAlreadyExistsException, CatalogException {
+            PartitionAlreadyExistsException, CatalogException {
         throw new UnsupportedOperationException();
     }
 

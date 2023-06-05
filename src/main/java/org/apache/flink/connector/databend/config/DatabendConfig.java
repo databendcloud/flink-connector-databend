@@ -22,6 +22,7 @@ public class DatabendConfig {
     public static final String SINK_MAX_RETRIES = "sink.max-retries";
 
     public static final String SINK_UPDATE_STRATEGY = "sink.update-strategy";
+    public static final String SINK_PRIMARY_KEYS = "sink.primary-key";
 
     public static final String SINK_IGNORE_DELETE = "sink.ignore-delete";
 }

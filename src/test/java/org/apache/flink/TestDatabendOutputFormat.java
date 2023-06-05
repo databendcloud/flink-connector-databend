@@ -81,16 +81,16 @@ public class TestDatabendOutputFormat {
                 Duration.ofSeconds(100),
                 3,
                 DatabendConfigOptions.SinkUpdateStrategy.UPDATE,
+                new String[]{},
                 true,
                 1);
-
+        String[] fields = {"x", "y", "z"};
+        String[] primaryKeys = {"x"};
+        String[] partitionKeys = {"x"};
         DatabendConnectionProvider databendConnectionProvider =
                 new DatabendConnectionProvider(databendConnectionOptions, properties);
         Connection connection = databendConnectionProvider.getOrCreateConnection();
 
-        String[] fields = {"x", "y", "z"};
-        String[] primaryKeys = {"x"};
-        String[] partitionKeys = {"x"};
 
         AbstractDatabendOutputFormat abstractDatabendOutputFormat = new AbstractDatabendOutputFormat.Builder()
                 .withOptions(databendDmlOptions)
@@ -98,7 +98,7 @@ public class TestDatabendOutputFormat {
                 .withFieldNames(fields)
                 .withConnectionProperties(properties)
                 .withPartitionKey(fields)
-                .withPrimaryKey(primaryKeys)
+                .withPrimaryKeys(primaryKeys)
                 .build();
 
         DatabendBatchOutputFormat databendBatchOutputFormat = new DatabendBatchOutputFormat(
@@ -111,8 +111,8 @@ public class TestDatabendOutputFormat {
 
         // test writeRecord
         RowData record = GenericRowData.of(StringData.fromString("112"), StringData.fromString("test"), StringData.fromString("x"));
-        RowData record1 = GenericRowData.of(StringData.fromString("113"), StringData.fromString("test"),StringData.fromString("y"));
-        RowData record2 = GenericRowData.of(StringData.fromString("112"), StringData.fromString("replaceit"),StringData.fromString("z"));
+        RowData record1 = GenericRowData.of(StringData.fromString("113"), StringData.fromString("test"), StringData.fromString("y"));
+        RowData record2 = GenericRowData.of(StringData.fromString("112"), StringData.fromString("replaceit"), StringData.fromString("z"));
         record2.setRowKind(RowKind.UPDATE_AFTER);
         databendBatchOutputFormat.writeRecord(record);
         databendBatchOutputFormat.writeRecord(record1);

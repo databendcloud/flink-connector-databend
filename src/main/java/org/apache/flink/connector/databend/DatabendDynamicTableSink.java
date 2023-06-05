@@ -1,8 +1,5 @@
 package org.apache.flink.connector.databend;
 
-import java.util.LinkedHashMap;
-import java.util.Properties;
-import javax.annotation.Nonnull;
 import org.apache.flink.connector.databend.internal.AbstractDatabendOutputFormat;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -10,6 +7,10 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
+
+import javax.annotation.Nonnull;
+import java.util.LinkedHashMap;
+import java.util.Properties;
 
 /**
  * A {@link DynamicTableSink} that describes how to create a {@link DatabendDynamicTableSink} from
@@ -81,7 +82,7 @@ public class DatabendDynamicTableSink implements DynamicTableSink {
                 .withConnectionProperties(connectionProperties)
                 .withFieldNames(DataType.getFieldNames(physicalRowDataType).toArray(new String[0]))
                 .withFieldTypes(DataType.getFieldDataTypes(physicalRowDataType).toArray(new DataType[0]))
-                .withPrimaryKey(primaryKeys)
+                .withPrimaryKeys(primaryKeys)
                 .withPartitionKey(partitionKeys)
                 .build();
         return OutputFormatProvider.of(outputFormat, options.getParallelism());

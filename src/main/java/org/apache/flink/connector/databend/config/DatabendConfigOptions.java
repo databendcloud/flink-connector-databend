@@ -6,6 +6,7 @@ import org.apache.flink.table.catalog.CommonCatalogOptions;
 import org.apache.flink.table.factories.FactoryUtil;
 
 import java.time.Duration;
+import java.util.List;
 
 public class DatabendConfigOptions {
     public static final ConfigOption<String> URL = ConfigOptions.key(DatabendConfig.URL)
@@ -64,6 +65,10 @@ public class DatabendConfigOptions {
             .withDescription(
                     "Convert a record of type UPDATE_AFTER to update/insert statement or just discard it, available: update, insert, discard."
                             + " Additional: `table.exec.sink.upsert-materialize`, `org.apache.flink.table.runtime.operators.sink.SinkUpsertMaterializer`");
+    public static final ConfigOption<List<String>> SINK_PRIMARY_KEYS =
+            ConfigOptions.key(DatabendConfig.SINK_PRIMARY_KEYS)
+                    .stringType().asList().defaultValues(new String[]{"id"})
+                    .withDescription("Primary keys used for update strategy.");
 
     public static final ConfigOption<Boolean> SINK_IGNORE_DELETE = ConfigOptions.key(DatabendConfig.SINK_IGNORE_DELETE)
             .booleanType()

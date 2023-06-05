@@ -1,25 +1,18 @@
 package org.apache.flink.connector.databend.catalog;
 
-import static org.apache.flink.connector.databend.config.DatabendConfig.IDENTIFIER;
-import static org.apache.flink.connector.databend.config.DatabendConfig.PROPERTIES_PREFIX;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.DATABASE_NAME;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.PASSWORD;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SINK_BATCH_SIZE;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SINK_FLUSH_INTERVAL;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SINK_IGNORE_DELETE;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SINK_MAX_RETRIES;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SINK_UPDATE_STRATEGY;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.URL;
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.USERNAME;
-import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
-
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.catalog.Catalog;
 import org.apache.flink.table.factories.CatalogFactory;
 import org.apache.flink.table.factories.FactoryUtil;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.apache.flink.connector.databend.config.DatabendConfig.IDENTIFIER;
+import static org.apache.flink.connector.databend.config.DatabendConfig.PROPERTIES_PREFIX;
+import static org.apache.flink.connector.databend.config.DatabendConfigOptions.*;
+import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 
 public class DatabendCatalogFactory implements CatalogFactory {
     @Override
@@ -46,6 +39,7 @@ public class DatabendCatalogFactory implements CatalogFactory {
         options.add(SINK_FLUSH_INTERVAL);
         options.add(SINK_MAX_RETRIES);
         options.add(SINK_UPDATE_STRATEGY);
+        options.add(SINK_PRIMARY_KEYS);
         options.add(SINK_IGNORE_DELETE);
         return options;
     }
