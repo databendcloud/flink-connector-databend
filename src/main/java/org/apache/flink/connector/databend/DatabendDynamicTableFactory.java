@@ -5,7 +5,6 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.connector.databend.internal.options.DatabendReadOptions;
 import org.apache.flink.table.catalog.ResolvedCatalogTable;
-import org.apache.flink.table.catalog.UniqueConstraint;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSinkFactory;
@@ -38,12 +37,12 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         validateConfigOptions(config);
 
         ResolvedCatalogTable catalogTable = context.getCatalogTable();
-        String[] primaryKeys = catalogTable
-                .getResolvedSchema()
-                .getPrimaryKey()
-                .map(UniqueConstraint::getColumns)
-                .map(keys -> keys.toArray(new String[0]))
-                .orElse(new String[0]);
+//        String[] primaryKeys = catalogTable
+//                .getResolvedSchema()
+//                .getPrimaryKey()
+//                .map(UniqueConstraint::getColumns)
+//                .map(keys -> keys.toArray(new String[0]))
+//                .orElse(new String[0]);
         Properties databendProperties =
                 getDatabendProperties(context.getCatalogTable().getOptions());
         return new DatabendDynamicTableSink(

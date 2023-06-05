@@ -243,8 +243,7 @@ public class DatabendCatalog extends AbstractCatalog {
     }
 
     private List<String> getPrimaryKeys(String databaseName, String tableName) {
-        List<String> primaryKeys = Arrays.asList("id");
-        return primaryKeys;
+        return Collections.emptyList();
     }
 
     @Override
