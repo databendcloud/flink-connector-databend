@@ -75,13 +75,13 @@ public interface DatabendExecutor extends Serializable {
             return createUpsertExecutor(
                     tableName, databaseName, fieldNames, keyFields, partitionFields, fieldTypes, options);
         } else {
-            return createBatchExecutor(tableName, fieldNames, fieldTypes, options);
+            return createBatchExecutor(tableName, fieldNames, keyFields, fieldTypes, options);
         }
     }
 
     static DatabendBatchExecutor createBatchExecutor(
-            String tableName, String[] fieldNames, LogicalType[] fieldTypes, DatabendDmlOptions options) {
-        String insertSql = DatabendStatementFactory.getInsertIntoStatement(tableName, fieldNames);
+            String tableName, String[] fieldNames, String[] keyFields, LogicalType[] fieldTypes, DatabendDmlOptions options) {
+        String insertSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
         DatabendRowConverter converter = new DatabendRowConverter(RowType.of(fieldTypes));
         return new DatabendBatchExecutor(insertSql, converter, options);
     }
@@ -94,7 +94,7 @@ public interface DatabendExecutor extends Serializable {
             String[] partitionFields,
             LogicalType[] fieldTypes,
             DatabendDmlOptions options) {
-        String insertSql = DatabendStatementFactory.getInsertIntoStatement(tableName, fieldNames);
+        String insertSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
         String upsertSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
         String updateSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
         String deleteSql = DatabendStatementFactory.getDeleteStatement(tableName, databaseName, keyFields);

@@ -115,6 +115,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
                     insertStmt.addBatch();
                 } else if (UPDATE.equals(updateStrategy)) {
                     updateConverter.toExternal(updateExtractor.apply(record), upsertStmt);
+//                    updateConverter.toExternal(record, upsertStmt);
                     upsertStmt.addBatch();
                 } else if (DISCARD.equals(updateStrategy)) {
                     LOG.debug("Discard a record of type UPDATE_AFTER: {}", record);
@@ -161,7 +162,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     @Override
     public String toString() {
-        return "DatabendUpsertExecutor{" + "insertSql='" + insertSql + '\'' +  "upsertSql='" + upsertSql + '\'' + ", updateSql='" + updateSql + '\''
+        return "DatabendUpsertExecutor{" + "insertSql='" + insertSql + '\'' + "upsertSql='" + upsertSql + '\'' + ", updateSql='" + updateSql + '\''
                 + ", deleteSql='" + deleteSql + '\'' + ", maxRetries=" + maxRetries + ", updateStrategy="
                 + updateStrategy + ", ignoreDelete=" + ignoreDelete + ", connectionProvider=" + connectionProvider
                 + '}';
