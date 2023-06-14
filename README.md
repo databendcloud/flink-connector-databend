@@ -20,7 +20,7 @@ Please create issues if you encounter bugs and any help for the project is great
 | sink.flush-interval  | optional | 1s      | Duration  | Over this flush interval mills, asynchronous threads will flush data.                                                    |
 | sink.max-retries     | optional | 3       | Integer   | The max retry times when writing records to the database failed.                                                         |
 | sink.update-strategy | optional | update  | String    | Convert a record of type UPDATE_AFTER to update/insert statement or just discard it, available: update, insert, discard. |
-| sink.primary-keys    | optional | ["id"]  | String    | The primary key used in upsert                                                                                           |
+| sink.primary-key     | optional | ["id"]  | String    | The primary key used in upsert                                                                                           |
 
 **Upsert Data Considerations:**
 
