@@ -100,7 +100,7 @@ CREATE TABLE t_user (
     `score` DOUBLE,
     `list` ARRAY<STRING>,
     `map` Map<STRING, BIGINT>,
-
+    PRIMARY KEY (user_id)
 ) WITH (
     'connector' = 'databend',
     'url' = 'databend://{ip}:{port}',
@@ -108,8 +108,7 @@ CREATE TABLE t_user (
     'table-name' = 'users',
     'sink.batch-size' = '500',
     'sink.flush-interval' = '1000',
-    'sink.max-retries' = '3',
-    'sink.primary-keys' = '[user_id]'
+    'sink.max-retries' = '3'
 );
 
 -- read data from databend 
