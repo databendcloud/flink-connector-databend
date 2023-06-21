@@ -113,6 +113,7 @@ CREATE TABLE t_user
       'table-name' = 'users',
       'sink.batch-size' = '500',
       'sink.flush-interval' = '1000',
+      'sink.ignore-delete' = 'false',
       'sink.max-retries' = '3'
       );
 
