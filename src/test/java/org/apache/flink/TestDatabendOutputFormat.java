@@ -14,6 +14,7 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.types.RowKind;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -51,11 +52,11 @@ public class TestDatabendOutputFormat {
         c.createStatement().execute("create table test_output_format.test(x int,y varchar,z varchar)");
     }
 
-//    @AfterAll
-//    public static void tearDown() throws SQLException {
-//        Connection c = createConnection();
-//        c.createStatement().execute("drop database if exists test_output_format");
-//    }
+    @AfterAll
+    public static void tearDown() throws SQLException {
+        Connection c = createConnection();
+        c.createStatement().execute("drop database if exists test_output_format");
+    }
 
     @Test
     public void TestAbstractDatabendOutput() throws SQLException, IOException {
