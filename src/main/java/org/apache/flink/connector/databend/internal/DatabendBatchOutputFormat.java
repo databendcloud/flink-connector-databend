@@ -1,14 +1,15 @@
 package org.apache.flink.connector.databend.internal;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import javax.annotation.Nonnull;
 import org.apache.flink.connector.databend.internal.connection.DatabendConnectionProvider;
 import org.apache.flink.connector.databend.internal.executor.DatabendExecutor;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.util.Preconditions;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.sql.SQLException;
 
 public class DatabendBatchOutputFormat extends AbstractDatabendOutputFormat {
     private static final long serialVersionUID = 1L;
@@ -68,10 +69,9 @@ public class DatabendBatchOutputFormat extends AbstractDatabendOutputFormat {
     @Override
     public synchronized void writeRecord(RowData record) throws IOException {
         checkFlushException();
-
+        System.out.println(record);
         try {
             executor.addToBatch(record);
-            System.out.println(record);
             batchCount++;
             if (batchCount >= options.getBatchSize()) {
                 flush();

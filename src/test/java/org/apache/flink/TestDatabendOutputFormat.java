@@ -77,12 +77,12 @@ public class TestDatabendOutputFormat {
                 "databend",
                 "test_output_format",
                 "test",
-                3,
+                1,
                 Duration.ofSeconds(100),
                 3,
                 DatabendConfigOptions.SinkUpdateStrategy.UPDATE,
                 new String[]{},
-                true,
+                false,
                 1);
         String[] fields = {"x", "y", "z"};
         String[] primaryKeys = {"x"};
@@ -117,6 +117,7 @@ public class TestDatabendOutputFormat {
         databendBatchOutputFormat.writeRecord(record);
         databendBatchOutputFormat.writeRecord(record1);
         databendBatchOutputFormat.writeRecord(record2);
+
         databendBatchOutputFormat.closeOutputFormat();
     }
 }
