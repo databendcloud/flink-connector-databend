@@ -39,6 +39,8 @@ public interface DatabendExecutor extends Serializable {
 
     void executeBatch() throws SQLException;
 
+    void executeOnce(RowData record) throws SQLException;
+
     void closeStatement();
 
     default void attemptExecuteBatch(DatabendPreparedStatement stmt, int maxRetries) throws SQLException {
@@ -59,6 +61,8 @@ public interface DatabendExecutor extends Serializable {
                     Thread.currentThread().interrupt();
                     throw new SQLException("Unable to flush; interrupted while doing another attempt", ex);
                 }
+            } finally {
+                stmt.clearBatch();
             }
         }
     }

@@ -7,6 +7,7 @@ import org.apache.flink.connector.databend.internal.connection.DatabendConnectio
 import org.apache.flink.connector.databend.internal.converter.DatabendRowConverter;
 import org.apache.flink.connector.databend.internal.options.DatabendDmlOptions;
 import org.apache.flink.table.data.RowData;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.*;
+import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.DISCARD;
+import static org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpdateStrategy.UPDATE;
 
 /**
  * Databend's upsert executor.
@@ -30,7 +32,7 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     private final String updateSql;
 
-    private final String deleteSql;
+    private String deleteSql;
 
     private final DatabendRowConverter insertConverter;
 
@@ -110,12 +112,12 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
                 break;
             case UPDATE_AFTER:
                 // config different update strategy according to dml config options
-                if (INSERT.equals(updateStrategy)) {
-                    insertConverter.toExternal(record, insertStmt);
-                    insertStmt.addBatch();
-                } else if (UPDATE.equals(updateStrategy)) {
+//                if (INSERT.equals(updateStrategy)) {
+//                    insertConverter.toExternal(record, insertStmt);
+//                    insertStmt.addBatch();
+//                } else
+                if (UPDATE.equals(updateStrategy)) {
                     updateConverter.toExternal(updateExtractor.apply(record), upsertStmt);
-//                    updateConverter.toExternal(record, upsertStmt);
                     upsertStmt.addBatch();
                 } else if (DISCARD.equals(updateStrategy)) {
                     LOG.debug("Discard a record of type UPDATE_AFTER: {}", record);
@@ -126,7 +128,8 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
             case DELETE:
                 if (!ignoreDelete) {
                     deleteConverter.toExternal(deleteExtractor.apply(record), deleteStmt);
-                    deleteStmt.addBatch();
+                    // User should define primary key to delete row
+                    executeOnce(record);
                 }
                 break;
             case UPDATE_BEFORE:
@@ -148,8 +151,16 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
     }
 
     @Override
+    public void executeOnce(@NotNull RowData record) throws SQLException {
+        // must have an Integer primary key
+        int KeyField = record.getInt(0);
+        String tmpDeleteSql = deleteSql.replace("?", String.valueOf(KeyField));
+        deleteStmt.execute(tmpDeleteSql);
+    }
+
+    @Override
     public void closeStatement() {
-        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, upsertStmt)) {
+        for (DatabendPreparedStatement databendPreparedStatement : Arrays.asList(insertStmt, upsertStmt, deleteStmt)) {
             if (databendPreparedStatement != null) {
                 try {
                     databendPreparedStatement.close();
