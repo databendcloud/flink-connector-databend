@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apache.flink</groupId>
-    <artifactId>flink-connector-databend</artifactId>
-    <packaging>jar</packaging>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-connector-databend</artifactId>
+  <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
@@ -80,7 +78,7 @@
                             </filters>
                             <transformers>
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
@@ -98,8 +96,8 @@
         </plugins>
     </build>
     <version>1.17.1-SNAPSHOT</version>
-    <name>flink-connector-databend</name>
-    <url>http://maven.apache.org</url>
+  <name>flink-connector-databend</name>
+  <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -126,87 +124,87 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <palantirJavaFormat.version>2.10.0</palantirJavaFormat.version>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.databend</groupId>
-            <artifactId>databend-jdbc</artifactId>
-            <version>0.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+      <dependency>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-inline</artifactId>
+          <version>${mockito.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-junit-jupiter</artifactId>
+          <version>${mockito.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.databend</groupId>
+          <artifactId>databend-jdbc</artifactId>
+          <version>0.0.9</version>
+      </dependency>
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>${commons-lang3.version}</version>
+      </dependency>
 
-        <!-- flink jars -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge</artifactId>
-            <version>${flink.version}</version>
-            <scope>${flink.scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime</artifactId>
-            <version>${flink.version}</version>
-            <scope>${flink.scope}</scope>
-        </dependency>
-        <!--      <dependency>-->
-        <!--          <groupId>org.apache.flink</groupId>-->
-        <!--          <artifactId>flink-table-planner_${scala.binary.version}</artifactId>-->
-        <!--          <version>${flink.version}</version>-->
-        <!--      </dependency>-->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-base</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-test-utils</artifactId>
-            <version>${flink.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+      <!-- flink jars -->
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-common</artifactId>
+          <version>${flink.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-api-java-bridge</artifactId>
+          <version>${flink.version}</version>
+          <scope>${flink.scope}</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-runtime</artifactId>
+          <version>${flink.version}</version>
+          <scope>${flink.scope}</scope>
+      </dependency>
+<!--      <dependency>-->
+<!--          <groupId>org.apache.flink</groupId>-->
+<!--          <artifactId>flink-table-planner_${scala.binary.version}</artifactId>-->
+<!--          <version>${flink.version}</version>-->
+<!--      </dependency>-->
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-connector-base</artifactId>
+          <version>${flink.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-test-utils</artifactId>
+          <version>${flink.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+          <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.testng</groupId>
+          <artifactId>testng</artifactId>
+          <version>${testng.version}</version>
+          <scope>test</scope>
+      </dependency>
+  </dependencies>
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
