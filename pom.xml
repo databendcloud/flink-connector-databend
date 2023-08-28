@@ -95,7 +95,7 @@
             </plugin>
         </plugins>
     </build>
-    <version>1.16.0-SNAPSHOT</version>
+    <version>1.17.1-SNAPSHOT</version>
   <name>flink-connector-databend</name>
   <url>http://maven.apache.org</url>
 
@@ -107,11 +107,14 @@
         <checkstyle.version>8.14</checkstyle.version>
         <junit.version>4.13.2</junit.version>
         <scala.binary.version>2.12</scala.binary.version>
-        <flink.version>1.16.0</flink.version>
+        <flink.version>1.17.1</flink.version>
         <flink.scope>provided</flink.scope>
         <guava.version>30.1.1-jre</guava.version>
-        <jackson.version>2.12.4</jackson.version>
+        <jackson.version>2.14.3</jackson.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
+        <mockito.version>4.10.0</mockito.version>
+        <httpclient.version>4.5.14</httpclient.version>
+        <testng.version>7.5.1</testng.version>
         <shade.base>org.apache.flink.shaded.databend</shade.base>
 
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -131,24 +134,14 @@
       <dependency>
           <groupId>org.mockito</groupId>
           <artifactId>mockito-inline</artifactId>
-          <version>4.0.0</version>
+          <version>${mockito.version}</version>
+          <scope>test</scope>
       </dependency>
       <dependency>
           <groupId>org.mockito</groupId>
           <artifactId>mockito-junit-jupiter</artifactId>
-          <version>4.0.0</version>
+          <version>${mockito.version}</version>
           <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.flink</groupId>
-          <artifactId>flink-table-common</artifactId>
-          <version>1.16.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.flink</groupId>
-          <artifactId>flink-table-api-java-bridge</artifactId>
-          <version>1.16.0</version>
-          <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>com.databend</groupId>
@@ -169,7 +162,12 @@
       <!-- flink jars -->
       <dependency>
           <groupId>org.apache.flink</groupId>
-          <artifactId>flink-table-api-java</artifactId>
+          <artifactId>flink-table-common</artifactId>
+          <version>${flink.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-table-api-java-bridge</artifactId>
           <version>${flink.version}</version>
           <scope>${flink.scope}</scope>
       </dependency>
@@ -185,31 +183,26 @@
 <!--          <version>${flink.version}</version>-->
 <!--      </dependency>-->
       <dependency>
-          <groupId>org.apache.httpcomponents</groupId>
-          <artifactId>httpcore</artifactId>
-          <version>4.4.14</version>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-connector-base</artifactId>
+          <version>${flink.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.flink</groupId>
           <artifactId>flink-table-test-utils</artifactId>
-          <version>1.16.0</version>
+          <version>${flink.version}</version>
           <scope>test</scope>
       </dependency>
       <dependency>
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
-          <version>4.5.10</version>
+          <version>${httpclient.version}</version>
       </dependency>
       <dependency>
           <groupId>org.testng</groupId>
           <artifactId>testng</artifactId>
-          <version>RELEASE</version>
+          <version>${testng.version}</version>
           <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.flink</groupId>
-          <artifactId>flink-connector-base</artifactId>
-          <version>${flink.version}</version>
       </dependency>
   </dependencies>
     <distributionManagement>
