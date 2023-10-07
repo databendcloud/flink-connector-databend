@@ -178,5 +178,4 @@ TableEnvironment tEnv=TableEnvironment.create(setting);
 - [x] Implement the Flink SQL Sink function.
 - [x] Support DatabendCatalog.
 - [x] Implement the Flink SQL Source function.
-- [ ] Support array and Map types.
 
