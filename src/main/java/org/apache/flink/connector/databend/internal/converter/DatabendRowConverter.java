@@ -1,30 +1,23 @@
 package org.apache.flink.connector.databend.internal.converter;
 
-import static org.apache.flink.connector.databend.internal.converter.DatabendConverterUtils.BOOL_TRUE;
-import static org.apache.flink.connector.databend.util.DatabendUtil.toEpochDayOneTimestamp;
-
 import com.databend.jdbc.DatabendPreparedStatement;
 import com.databend.jdbc.DatabendResultSet;
+import org.apache.flink.table.data.*;
+import org.apache.flink.table.types.logical.*;
+import org.apache.flink.table.types.logical.RowType.RowField;
+import org.apache.flink.util.Preconditions;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import org.apache.flink.table.data.DecimalData;
-import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.data.StringData;
-import org.apache.flink.table.data.TimestampData;
-import org.apache.flink.table.types.logical.DecimalType;
-import org.apache.flink.table.types.logical.LocalZonedTimestampType;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.RowType.RowField;
-import org.apache.flink.table.types.logical.TimestampType;
-import org.apache.flink.util.Preconditions;
 
-public class DatabendRowConverter {
+import static org.apache.flink.connector.databend.internal.converter.DatabendConverterUtils.BOOL_TRUE;
+import static org.apache.flink.connector.databend.util.DatabendUtil.toEpochDayOneTimestamp;
+
+public class DatabendRowConverter implements Serializable{
     private static final long serialVersionUID = 1L;
 
     private final RowType rowType;
