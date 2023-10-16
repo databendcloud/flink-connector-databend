@@ -103,10 +103,16 @@ public interface DatabendExecutor extends Serializable {
         String updateSql = DatabendStatementFactory.getReplaceIntoStatement(tableName, fieldNames, keyFields);
         String deleteSql = DatabendStatementFactory.getDeleteStatement(tableName, databaseName, keyFields);
 
+        LOG.info("fieldTypes,{}", Arrays.toString(fieldTypes));
+        LOG.info("fieldNames,{}", Arrays.toString(fieldNames));
+        LOG.info("keyFields is {}", Arrays.toString(keyFields));
+        LOG.info("table name is {}, database name is {}", tableName, databaseName);
+
         // Re-sort the order of fields to fit the sql statement.
         int[] delFields = Arrays.stream(keyFields)
                 .mapToInt(pk -> ArrayUtils.indexOf(fieldNames, pk))
                 .toArray();
+        LOG.info("delFields is {}", Arrays.toString(delFields));
         int[] updatableFields = IntStream.range(0, fieldNames.length)
                 .filter(idx -> !ArrayUtils.contains(keyFields, fieldNames[idx]))
                 .filter(idx -> !ArrayUtils.contains(partitionFields, fieldNames[idx]))
