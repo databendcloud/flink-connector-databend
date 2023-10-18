@@ -17,7 +17,7 @@ import java.time.LocalTime;
 import static org.apache.flink.connector.databend.internal.converter.DatabendConverterUtils.BOOL_TRUE;
 import static org.apache.flink.connector.databend.util.DatabendUtil.toEpochDayOneTimestamp;
 
-public class DatabendRowConverter implements Serializable{
+public class DatabendRowConverter implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final RowType rowType;
@@ -25,6 +25,7 @@ public class DatabendRowConverter implements Serializable{
     private final DeserializationConverter[] toInternalConverters;
 
     private final SerializationConverter[] toExternalConverters;
+    private final LogicalTypeRoot[] toLogicalTypeRoot;
 
     public DatabendRowConverter(RowType rowType) {
         this.rowType = Preconditions.checkNotNull(rowType);
@@ -32,10 +33,12 @@ public class DatabendRowConverter implements Serializable{
                 rowType.getFields().stream().map(RowField::getType).toArray(LogicalType[]::new);
         this.toInternalConverters = new DeserializationConverter[rowType.getFieldCount()];
         this.toExternalConverters = new SerializationConverter[rowType.getFieldCount()];
+        this.toLogicalTypeRoot = new LogicalTypeRoot[rowType.getFieldCount()];
 
         for (int i = 0; i < rowType.getFieldCount(); i++) {
             this.toInternalConverters[i] = createToInternalConverter(rowType.getTypeAt(i));
             this.toExternalConverters[i] = createToExternalConverter(logicalTypes[i]);
+            this.toLogicalTypeRoot[i] = logicalTypes[i].getTypeRoot();
         }
     }
 
@@ -50,6 +53,32 @@ public class DatabendRowConverter implements Serializable{
             }
         }
         return genericRowData;
+    }
+
+    public LogicalTypeRoot getFristLogicalTypeRoot(RowData rowData) throws SQLException {
+        if (rowData.getArity() == 0) {
+            return LogicalTypeRoot.NULL;
+        }
+        return toLogicalTypeRoot[0];
+    }
+
+    public boolean isIntegerLogicalType(RowData rowData) throws SQLException {
+        LogicalTypeRoot logicalTypeRoot = getFristLogicalTypeRoot(rowData);
+        if (logicalTypeRoot == LogicalTypeRoot.INTEGER ||
+                logicalTypeRoot == LogicalTypeRoot.TINYINT ||
+                logicalTypeRoot == LogicalTypeRoot.BIGINT ||
+                logicalTypeRoot == LogicalTypeRoot.SMALLINT) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isStringLocalType(RowData rowData) throws SQLException {
+        LogicalTypeRoot logicalTypeRoot = getFristLogicalTypeRoot(rowData);
+        if (logicalTypeRoot == LogicalTypeRoot.VARCHAR || logicalTypeRoot == LogicalTypeRoot.CHAR) {
+            return true;
+        }
+        return false;
     }
 
     public void toExternal(RowData rowData, DatabendPreparedStatement statement) throws SQLException {
