@@ -45,5 +45,5 @@ jobs:
 
       - name: Run Maven clean deploy with release profile
         run: mvn clean test
-        env:
+#        env:
 #          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
