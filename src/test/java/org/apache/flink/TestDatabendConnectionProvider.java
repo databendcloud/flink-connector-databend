@@ -32,6 +32,5 @@ public class TestDatabendConnectionProvider {
         Statement stmt = connection.createStatement();
         Boolean r = stmt.execute("select 1");
         assertEquals(true, r);
-        System.out.println("test ci");
     }
 }
