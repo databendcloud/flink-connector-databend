@@ -152,9 +152,15 @@ public class DatabendUpsertExecutor implements DatabendExecutor {
 
     @Override
     public void executeOnce(@NotNull RowData record) throws SQLException {
-        // must have an Integer primary key
-        int KeyField = record.getInt(0);
-        String tmpDeleteSql = deleteSql.replace("?", String.valueOf(KeyField));
+        if (deleteConverter.isStringLocalType(record)) {
+            String keyField = String.valueOf(record.getString(0));
+            LOG.info("keyField is {}", keyField);
+            String tmpDeleteSql = deleteSql.replace("?", "'".concat(keyField).concat("'"));
+            deleteStmt.execute(tmpDeleteSql);
+            return;
+        }
+        int keyField = record.getInt(0);
+        String tmpDeleteSql = deleteSql.replace("?", String.valueOf(keyField));
         deleteStmt.execute(tmpDeleteSql);
     }
 

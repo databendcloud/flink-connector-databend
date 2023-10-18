@@ -29,13 +29,13 @@ public class TestDatabendDynamicTableSink {
 
         Properties connectionProperties = new Properties();
         connectionProperties.put("url", "databend://localhost:8000");
-        connectionProperties.put("user", "root");
-        connectionProperties.put("password", "root");
+        connectionProperties.put("user", "databend");
+        connectionProperties.put("password", "databend");
 
         DatabendDmlOptions databendDmlOptions = new DatabendDmlOptions(
                 "databend://localhost:8000",
-                "root",
-                "root",
+                "databend",
+                "databend",
                 "test_output_format",
                 "test",
                 1,
@@ -68,13 +68,13 @@ public class TestDatabendDynamicTableSink {
 
         Properties connectionProperties = new Properties();
         connectionProperties.put("url", "databend://localhost:8000");
-        connectionProperties.put("user", "test");
-        connectionProperties.put("password", "test");
+        connectionProperties.put("user", "databend");
+        connectionProperties.put("password", "databend");
 
         DatabendDmlOptions databendDmlOptions = new DatabendDmlOptions(
                 "databend://localhost:8000",
-                "root",
-                "root",
+                "databend",
+                "databend",
                 "test_output_format",
                 "test",
                 1,
