@@ -15,12 +15,15 @@ public class TestDatabendStatementFactory {
         String insertStatement = DatabendStatementFactory.getInsertIntoStatement("test", fields);
         assertEquals("INSERT INTO `test`(`column1`, `column2`) VALUES (?, ?)", insertStatement);
 
-        String[] keyFields = {"column1"};
+        String[] keyFields = {"column1", "column2"};
 //        String[] partitionFields = {"column2"};
 
         String replaceIntoStatement = DatabendStatementFactory.getReplaceIntoStatement("test", fields, keyFields);
         System.out.println(replaceIntoStatement);
-        assertEquals("REPLACE INTO `test`(`column1`, `column2`) ON (`column1`) VALUES (?, ?)", replaceIntoStatement);
+        assertEquals("REPLACE INTO `test`(`column1`, `column2`) ON (`column1`, `column2`) VALUES (?, ?)", replaceIntoStatement);
 
+        String deleteStatement = DatabendStatementFactory.getDeleteStatement("test", "default", keyFields);
+        System.out.println(deleteStatement);
+        assertEquals("DELETE FROM `default`.`test` WHERE `column1`=? AND `column2`=?", deleteStatement);
     }
 }
