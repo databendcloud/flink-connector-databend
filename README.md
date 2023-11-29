@@ -23,7 +23,7 @@ Please create issues if you encounter bugs and any help for the project is great
 | sink.ignore-delete   | optional | true    | String   | handle DELETE event or not                                                                                               |
 | sink.primary-key     | optional | "id"    | String   | The primary key used in upsert                                                                                           |
 
-**NOTE**: `sink.ignore-delete` default value is true so this connector doesn't support `DELETE` default. If you make `sink.ignore-delete=false` make sure the source database has an `Integer` type primary key.
+**NOTE**: `sink.ignore-delete` default value is true so this connector doesn't support `DELETE` default. If you make `sink.ignore-delete=false` make sure the source database has an `Integer` or `String` type primary key.
 
 **Upsert Data Considerations:**
 
