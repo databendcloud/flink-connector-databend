@@ -77,6 +77,7 @@ public class TestDatabendOutputFormat {
                 "databend",
                 "test_output_format",
                 "test",
+                properties,
                 1,
                 Duration.ofSeconds(100),
                 3,
