@@ -4,6 +4,7 @@ import org.apache.flink.connector.databend.config.DatabendConfigOptions.SinkUpda
 
 import javax.annotation.Nullable;
 import java.time.Duration;
+import java.util.Properties;
 
 /**
  * Databend data modify language options.
@@ -24,6 +25,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
     private final boolean ignoreDelete;
 
     private final Integer parallelism;
+    private Properties connectionProperties;
 
     public DatabendDmlOptions(
             String url,
@@ -31,6 +33,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
             @Nullable String password,
             String databaseName,
             String tableName,
+            Properties connectionProperties,
             int batchSize,
             Duration flushInterval,
             int maxRetires,
@@ -38,7 +41,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
             String[] primaryKeys,
             boolean ignoreDelete,
             Integer parallelism) {
-        super(url, username, password, databaseName, tableName);
+        super(url, username, password, databaseName, tableName, connectionProperties);
         this.batchSize = batchSize;
         this.flushInterval = flushInterval;
         this.maxRetries = maxRetires;
@@ -64,7 +67,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         return updateStrategy;
     }
 
-    public String[] getPrimaryKeys(){
+    public String[] getPrimaryKeys() {
         return primaryKeys;
     }
 
@@ -74,6 +77,10 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
 
     public Integer getParallelism() {
         return parallelism;
+    }
+
+    public Properties getConnectionProperties() {
+        return this.connectionProperties;
     }
 
     /**
@@ -92,6 +99,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
         private boolean ignoreDelete;
         private String[] primaryKey;
         private Integer parallelism;
+        private Properties connectionProperties;
 
         public Builder() {
         }
@@ -156,6 +164,11 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
             return this;
         }
 
+        public DatabendDmlOptions.Builder withConnectionProperties(Properties connectionProperties) {
+            this.connectionProperties = connectionProperties;
+            return this;
+        }
+
         public DatabendDmlOptions build() {
             return new DatabendDmlOptions(
                     url,
@@ -163,6 +176,7 @@ public class DatabendDmlOptions extends DatabendConnectionOptions {
                     password,
                     databaseName,
                     tableName,
+                    connectionProperties,
                     batchSize,
                     flushInterval,
                     maxRetries,

@@ -24,7 +24,7 @@ public class TestDatabendConnectionProvider {
         m.put("properties.table-name", "test");
         Properties properties = DatabendUtil.getDatabendProperties(m);
         DatabendConnectionOptions databendConnectionOptions =
-                new DatabendConnectionOptions("databend://localhost:8000", "databend", "databend", "default", "test");
+                new DatabendConnectionOptions("databend://localhost:8000", "databend", "databend", "default", "test", properties);
 
         DatabendConnectionProvider databendConnectionProvider =
                 new DatabendConnectionProvider(databendConnectionOptions, properties);
