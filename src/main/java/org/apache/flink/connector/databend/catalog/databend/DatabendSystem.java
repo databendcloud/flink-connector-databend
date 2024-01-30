@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Doris System Operate.
+ * Databend System Operate.
  */
 @Public
 public class DatabendSystem implements Serializable {
