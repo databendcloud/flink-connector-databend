@@ -46,9 +46,9 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         Properties databendProperties =
                 getDatabendProperties(context.getCatalogTable().getOptions());
         return new DatabendDynamicTableSink(
-                getDmlOptions(config),
+                getDmlOptions(config, databendProperties),
                 databendProperties,
-                getDmlOptions(config).getPrimaryKeys(),
+                getDmlOptions(config, databendProperties).getPrimaryKeys(),
                 catalogTable.getPartitionKeys().toArray(new String[0]),
                 context.getPhysicalRowDataType());
     }
@@ -63,7 +63,7 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         Properties databendProperties =
                 getDatabendProperties(context.getCatalogTable().getOptions());
         return new DatabendDynamicTableSource(
-                getReadOptions(config), databendProperties, context.getPhysicalRowDataType());
+                getReadOptions(config, databendProperties), databendProperties, context.getPhysicalRowDataType());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         }
     }
 
-    public DatabendDmlOptions getDmlOptions(ReadableConfig config) {
+    public DatabendDmlOptions getDmlOptions(ReadableConfig config, Properties databendProperties) {
         return new DatabendDmlOptions.Builder()
                 .withUrl(config.get(URL))
                 .withUsername(config.get(USERNAME))
@@ -116,16 +116,18 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
                 .withPrimaryKey(config.get(SINK_PRIMARY_KEYS).toArray(new String[0]))
                 .withIgnoreDelete(config.get(SINK_IGNORE_DELETE))
                 .withParallelism(config.get(SINK_PARALLELISM))
+                .withConnectionProperties(databendProperties)
                 .build();
     }
 
-    private DatabendReadOptions getReadOptions(ReadableConfig config) {
+    private DatabendReadOptions getReadOptions(ReadableConfig config, Properties databendProperties) {
         return new DatabendReadOptions.Builder()
                 .withUrl(config.get(URL))
                 .withUsername(config.get(USERNAME))
                 .withPassword(config.get(PASSWORD))
                 .withDatabaseName(config.get(DATABASE_NAME))
                 .withTableName(config.get(TABLE_NAME))
+                .withConnectionProperties(databendProperties)
                 .build();
     }
 }

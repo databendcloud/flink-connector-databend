@@ -65,7 +65,7 @@ public class TestDeleteOutputFormat {
         m.put("properties.database-name", "test_delete_output");
         m.put("properties.table-name", "test");
         Properties properties = DatabendUtil.getDatabendProperties(m);
-        DatabendConnectionOptions databendConnectionOptions = new DatabendConnectionOptions("databend://0.0.0.0:8000", "databend", "databend", "test_delete_output", "test");
+        DatabendConnectionOptions databendConnectionOptions = new DatabendConnectionOptions("databend://0.0.0.0:8000", "databend", "databend", "test_delete_output", "test", properties);
 
         DatabendDmlOptions databendDmlOptions = new DatabendDmlOptions("databend://0.0.0.0:8000", "databend", "databend", "test_delete_output", "test", 1, Duration.ofSeconds(100), 3, DatabendConfigOptions.SinkUpdateStrategy.UPDATE, new String[]{}, false, 1);
         String[] fields = {"x", "y", "z"};

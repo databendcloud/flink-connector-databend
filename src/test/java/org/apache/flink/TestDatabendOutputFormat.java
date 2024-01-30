@@ -69,7 +69,7 @@ public class TestDatabendOutputFormat {
         m.put("properties.table-name", "test");
         Properties properties = DatabendUtil.getDatabendProperties(m);
         DatabendConnectionOptions databendConnectionOptions = new DatabendConnectionOptions(
-                "databend://0.0.0.0:8000", "databend", "databend", "test_output_format", "test");
+                "databend://0.0.0.0:8000", "databend", "databend", "test_output_format", "test", properties);
 
         DatabendDmlOptions databendDmlOptions = new DatabendDmlOptions(
                 "databend://0.0.0.0:8000",
