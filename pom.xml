@@ -103,7 +103,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-
+        <flink.sql.cdc.version>2.4.2</flink.sql.cdc.version>
         <checkstyle.version>8.14</checkstyle.version>
         <junit.version>4.13.2</junit.version>
         <scala.binary.version>2.12</scala.binary.version>
@@ -176,6 +176,30 @@
           <artifactId>flink-runtime</artifactId>
           <version>${flink.version}</version>
           <scope>${flink.scope}</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.ververica</groupId>
+          <artifactId>flink-sql-connector-mysql-cdc</artifactId>
+          <version>${flink.sql.cdc.version}</version>
+          <scope>provided</scope>
+          <exclusions>
+              <exclusion>
+                  <artifactId>flink-shaded-guava</artifactId>
+                  <groupId>org.apache.flink</groupId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>com.ververica</groupId>
+          <artifactId>flink-sql-connector-oracle-cdc</artifactId>
+          <version>${flink.sql.cdc.version}</version>
+          <scope>provided</scope>
+          <exclusions>
+              <exclusion>
+                  <artifactId>flink-shaded-guava</artifactId>
+                  <groupId>org.apache.flink</groupId>
+              </exclusion>
+          </exclusions>
       </dependency>
 <!--      <dependency>-->
 <!--          <groupId>org.apache.flink</groupId>-->
