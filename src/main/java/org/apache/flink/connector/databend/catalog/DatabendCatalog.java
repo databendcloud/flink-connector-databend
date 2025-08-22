@@ -6,8 +6,28 @@ import org.apache.flink.connector.databend.DatabendDynamicTableFactory;
 import org.apache.flink.connector.databend.util.DataTypeUtil;
 import org.apache.flink.connector.databend.util.DatabendUtil;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.catalog.*;
-import org.apache.flink.table.catalog.exceptions.*;
+import org.apache.flink.table.catalog.AbstractCatalog;
+import org.apache.flink.table.catalog.CatalogBaseTable;
+import org.apache.flink.table.catalog.CatalogDatabase;
+import org.apache.flink.table.catalog.CatalogDatabaseImpl;
+import org.apache.flink.table.catalog.CatalogFunction;
+import org.apache.flink.table.catalog.CatalogPartition;
+import org.apache.flink.table.catalog.CatalogPartitionSpec;
+import org.apache.flink.table.catalog.CatalogTableImpl;
+import org.apache.flink.table.catalog.ObjectPath;
+import org.apache.flink.table.catalog.exceptions.CatalogException;
+import org.apache.flink.table.catalog.exceptions.DatabaseAlreadyExistException;
+import org.apache.flink.table.catalog.exceptions.DatabaseNotEmptyException;
+import org.apache.flink.table.catalog.exceptions.DatabaseNotExistException;
+import org.apache.flink.table.catalog.exceptions.FunctionAlreadyExistException;
+import org.apache.flink.table.catalog.exceptions.FunctionNotExistException;
+import org.apache.flink.table.catalog.exceptions.PartitionAlreadyExistsException;
+import org.apache.flink.table.catalog.exceptions.PartitionNotExistException;
+import org.apache.flink.table.catalog.exceptions.PartitionSpecInvalidException;
+import org.apache.flink.table.catalog.exceptions.TableAlreadyExistException;
+import org.apache.flink.table.catalog.exceptions.TableNotExistException;
+import org.apache.flink.table.catalog.exceptions.TableNotPartitionedException;
+import org.apache.flink.table.catalog.exceptions.TablePartitionedException;
 import org.apache.flink.table.catalog.stats.CatalogColumnStatistics;
 import org.apache.flink.table.catalog.stats.CatalogTableStatistics;
 import org.apache.flink.table.expressions.Expression;
@@ -17,14 +37,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.*;
+import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
-import static org.apache.flink.connector.databend.config.DatabendConfig.*;
+import static org.apache.flink.connector.databend.config.DatabendConfig.DATABASE_NAME;
+import static org.apache.flink.connector.databend.config.DatabendConfig.PASSWORD;
+import static org.apache.flink.connector.databend.config.DatabendConfig.TABLE_NAME;
+import static org.apache.flink.connector.databend.config.DatabendConfig.URL;
+import static org.apache.flink.connector.databend.config.DatabendConfig.USERNAME;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.StringUtils.isNullOrWhitespaceOnly;
 
@@ -211,9 +243,20 @@ public class DatabendCatalog extends AbstractCatalog {
     }
 
     private synchronized TableSchema createTableSchema(String databaseName, String tableName) {
+        // 直接执行查询，确保能获取到元数据
         try (PreparedStatement stmt = connection.prepareStatement(
-                String.format("SELECT * from `%s`.`%s` limit 1", databaseName, tableName))) {
-            DatabendResultSetMetaData metaData = stmt.getMetaData().unwrap(DatabendResultSetMetaData.class);
+                String.format("SELECT * from `%s`.`%s` limit 1", databaseName, tableName));
+                ResultSet rs = stmt.executeQuery()) {  // 强制执行查询
+
+            // 从 ResultSet 获取元数据
+            ResultSetMetaData standardMetaData = rs.getMetaData();
+            if (standardMetaData == null) {
+                throw new CatalogException("Cannot retrieve metadata for table: " + tableName);
+            }
+
+            // unwrap 到 DatabendResultSetMetaData
+            DatabendResultSetMetaData metaData = standardMetaData.unwrap(DatabendResultSetMetaData.class);
+
             Method getColMethod = metaData.getClass().getDeclaredMethod("getCol", int.class);
             getColMethod.setAccessible(true);
 
