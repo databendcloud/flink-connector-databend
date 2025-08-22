@@ -5,6 +5,7 @@ import com.databend.jdbc.DatabendResultSetMetaData;
 import org.apache.flink.connector.databend.DatabendDynamicTableFactory;
 import org.apache.flink.connector.databend.util.DataTypeUtil;
 import org.apache.flink.connector.databend.util.DatabendUtil;
+import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
@@ -44,6 +45,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -243,45 +245,187 @@ public class DatabendCatalog extends AbstractCatalog {
     }
 
     private synchronized TableSchema createTableSchema(String databaseName, String tableName) {
-        // 直接执行查询，确保能获取到元数据
-        try (PreparedStatement stmt = connection.prepareStatement(
-                String.format("SELECT * from `%s`.`%s` limit 1", databaseName, tableName));
-                ResultSet rs = stmt.executeQuery()) {  // 强制执行查询
-
-            // 从 ResultSet 获取元数据
-            ResultSetMetaData standardMetaData = rs.getMetaData();
-            if (standardMetaData == null) {
-                throw new CatalogException("Cannot retrieve metadata for table: " + tableName);
+        try {
+            // check connection
+            if (connection == null) {
+                throw new CatalogException("Connection is null");
+            }
+            if (connection.isClosed()) {
+                throw new CatalogException("Connection is closed");
             }
 
-            // unwrap 到 DatabendResultSetMetaData
-            DatabendResultSetMetaData metaData = standardMetaData.unwrap(DatabendResultSetMetaData.class);
+            String sql = String.format("SELECT * from `%s`.`%s` limit 1", databaseName, tableName);
+            System.out.println("Executing SQL: " + sql);
 
-            Method getColMethod = metaData.getClass().getDeclaredMethod("getCol", int.class);
-            getColMethod.setAccessible(true);
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            if (stmt == null) {
+                throw new CatalogException("PreparedStatement is null");
+            }
 
+            ResultSet rs = stmt.executeQuery();
+            if (rs == null) {
+                throw new CatalogException("ResultSet is null");
+            }
+
+            // from ResultSet get metadata
+            ResultSetMetaData standardMetaData = rs.getMetaData();
+            if (standardMetaData == null) {
+                throw new CatalogException("ResultSetMetaData is null");
+            }
+
+            System.out.println("Got standard metadata, column count: " + standardMetaData.getColumnCount());
+
+            //  ResultSetMetaData
+            try {
+                // unwrap to DatabendResultSetMetaData
+                DatabendResultSetMetaData metaData = standardMetaData.unwrap(DatabendResultSetMetaData.class);
+                if (metaData == null) {
+                    throw new CatalogException("DatabendResultSetMetaData is null after unwrap");
+                }
+
+                Method getColMethod = metaData.getClass().getDeclaredMethod("getCol", int.class);
+                getColMethod.setAccessible(true);
+
+                List<String> primaryKeys = getPrimaryKeys(databaseName, tableName);
+                TableSchema.Builder builder = TableSchema.builder();
+
+                for (int idx = 1; idx <= metaData.getColumnCount(); idx++) {
+                    DatabendColumnInfo columnInfo = (DatabendColumnInfo) getColMethod.invoke(metaData, idx);
+                    String columnName = columnInfo.getColumnName();
+                    DataType columnType = DataTypeUtil.toFlinkType(columnInfo);
+                    if (primaryKeys.contains(columnName)) {
+                        columnType = columnType.notNull();
+                    }
+                    builder.field(columnName, columnType);
+                }
+
+                if (!primaryKeys.isEmpty()) {
+                    builder.primaryKey(primaryKeys.toArray(new String[0]));
+                }
+
+                rs.close();
+                stmt.close();
+
+                return builder.build();
+
+            } catch (Exception e) {
+                System.err.println("Failed to use DatabendResultSetMetaData, falling back to standard metadata: " + e.getMessage());
+                return createTableSchemaFromStandardMetaData(standardMetaData, databaseName, tableName, rs, stmt);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CatalogException(
+                    String.format(
+                            "Failed getting columns in catalog %s database %s table %s: %s",
+                            getName(), databaseName, tableName, e.getMessage()),
+                    e);
+        }
+    }
+
+    private TableSchema createTableSchemaFromStandardMetaData(
+            ResultSetMetaData metaData, String databaseName, String tableName,
+            ResultSet rs, PreparedStatement stmt) {
+        try {
             List<String> primaryKeys = getPrimaryKeys(databaseName, tableName);
             TableSchema.Builder builder = TableSchema.builder();
+
             for (int idx = 1; idx <= metaData.getColumnCount(); idx++) {
-                DatabendColumnInfo columnInfo = (DatabendColumnInfo) getColMethod.invoke(metaData, idx);
-                String columnName = columnInfo.getColumnName();
-                DataType columnType = DataTypeUtil.toFlinkType(columnInfo);
+                String columnName = metaData.getColumnName(idx);
+                String columnTypeName = metaData.getColumnTypeName(idx);
+                int columnType = metaData.getColumnType(idx);
+                int precision = metaData.getPrecision(idx);
+                int scale = metaData.getScale(idx);
+
+                System.out.printf("Column %d: name=%s, type=%s, sqlType=%d, precision=%d, scale=%d%n",
+                        idx, columnName, columnTypeName, columnType, precision, scale);
+
+                DataType flinkType = convertToFlinkType(columnTypeName, columnType, precision, scale);
+
                 if (primaryKeys.contains(columnName)) {
-                    columnType = columnType.notNull();
+                    flinkType = flinkType.notNull();
                 }
-                builder.field(columnName, columnType);
+                builder.field(columnName, flinkType);
             }
 
             if (!primaryKeys.isEmpty()) {
                 builder.primaryKey(primaryKeys.toArray(new String[0]));
             }
+
+            rs.close();
+            stmt.close();
+
             return builder.build();
         } catch (Exception e) {
-            throw new CatalogException(
-                    String.format(
-                            "Failed getting columns in catalog %s database %s table %s",
-                            getName(), databaseName, tableName),
-                    e);
+            throw new CatalogException("Failed to create schema from standard metadata", e);
+        }
+    }
+
+    private DataType convertToFlinkType(String typeName, int sqlType, int precision, int scale) {
+        if (typeName != null) {
+            String upperTypeName = typeName.toUpperCase();
+            if (upperTypeName.contains("INT64") || upperTypeName.contains("BIGINT")) {
+                return DataTypes.BIGINT();
+            } else if (upperTypeName.contains("INT32") || upperTypeName.contains("INT")) {
+                return DataTypes.INT();
+            } else if (upperTypeName.contains("INT16") || upperTypeName.contains("SMALLINT")) {
+                return DataTypes.SMALLINT();
+            } else if (upperTypeName.contains("INT8") || upperTypeName.contains("TINYINT")) {
+                return DataTypes.TINYINT();
+            } else if (upperTypeName.contains("FLOAT64") || upperTypeName.contains("DOUBLE")) {
+                return DataTypes.DOUBLE();
+            } else if (upperTypeName.contains("FLOAT32") || upperTypeName.contains("FLOAT")) {
+                return DataTypes.FLOAT();
+            } else if (upperTypeName.contains("STRING") || upperTypeName.contains("VARCHAR")) {
+                return DataTypes.STRING();
+            } else if (upperTypeName.contains("TIMESTAMP")) {
+                return DataTypes.TIMESTAMP(3);
+            } else if (upperTypeName.contains("DATE")) {
+                return DataTypes.DATE();
+            } else if (upperTypeName.contains("BOOLEAN") || upperTypeName.contains("BOOL")) {
+                return DataTypes.BOOLEAN();
+            } else if (upperTypeName.contains("DECIMAL")) {
+                return DataTypes.DECIMAL(precision > 0 ? precision : 10, scale >= 0 ? scale : 0);
+            }
+        }
+
+        switch (sqlType) {
+            case Types.BOOLEAN:
+                return DataTypes.BOOLEAN();
+            case Types.TINYINT:
+                return DataTypes.TINYINT();
+            case Types.SMALLINT:
+                return DataTypes.SMALLINT();
+            case Types.INTEGER:
+                return DataTypes.INT();
+            case Types.BIGINT:
+                return DataTypes.BIGINT();
+            case Types.FLOAT:
+            case Types.REAL:
+                return DataTypes.FLOAT();
+            case Types.DOUBLE:
+                return DataTypes.DOUBLE();
+            case Types.DECIMAL:
+            case Types.NUMERIC:
+                return DataTypes.DECIMAL(precision > 0 ? precision : 10, scale >= 0 ? scale : 0);
+            case Types.CHAR:
+                return DataTypes.CHAR(precision > 0 ? precision : 1);
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+                return DataTypes.STRING();
+            case Types.DATE:
+                return DataTypes.DATE();
+            case Types.TIME:
+                return DataTypes.TIME();
+            case Types.TIMESTAMP:
+                return DataTypes.TIMESTAMP(3);
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                return DataTypes.BYTES();
+            default:
+                System.out.println("Unknown SQL type: " + sqlType + ", using STRING");
+                return DataTypes.STRING();
         }
     }
 
