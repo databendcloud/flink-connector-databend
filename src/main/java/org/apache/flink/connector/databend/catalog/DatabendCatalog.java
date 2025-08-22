@@ -86,7 +86,7 @@ public class DatabendCatalog extends AbstractCatalog {
             configuration.setProperty("password", password);
             String jdbcUrl = DatabendUtil.getJdbcUrl(baseUrl, getDefaultDatabase());
 
-            connection = DriverManager.getConnection(baseUrl, configuration);
+            connection = DriverManager.getConnection(jdbcUrl, configuration);
             LOG.info("Created catalog {}, established connection to {}", getName(), jdbcUrl);
         } catch (Exception e) {
             throw new CatalogException(String.format("Opening catalog %s failed.", getName()), e);
