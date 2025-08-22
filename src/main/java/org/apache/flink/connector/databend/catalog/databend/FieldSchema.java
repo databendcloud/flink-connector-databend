@@ -5,12 +5,15 @@ public class FieldSchema {
     private String typeString;
     private String comment;
 
+    private String defaultValue;
+
     public FieldSchema() {
     }
 
-    public FieldSchema(String name, String typeString, String comment) {
+    public FieldSchema(String name, String typeString, String comment, String defaultValue) {
         this.name = name;
         this.typeString = typeString;
+        this.defaultValue = defaultValue;
         this.comment = comment;
     }
 
@@ -37,4 +40,10 @@ public class FieldSchema {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
 }
+
+
