@@ -309,7 +309,6 @@ public class DatabendCatalog extends AbstractCatalog {
                 return builder.build();
 
             } catch (Exception e) {
-                System.err.println("Failed to use DatabendResultSetMetaData, falling back to standard metadata: " + e.getMessage());
                 return createTableSchemaFromStandardMetaData(standardMetaData, databaseName, tableName, rs, stmt);
             }
 
