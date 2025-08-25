@@ -37,12 +37,6 @@ public class DatabendDynamicTableFactory implements DynamicTableSinkFactory, Dyn
         validateConfigOptions(config);
 
         ResolvedCatalogTable catalogTable = context.getCatalogTable();
-//        String[] primaryKeys = catalogTable
-//                .getResolvedSchema()
-//                .getPrimaryKey()
-//                .map(UniqueConstraint::getColumns)
-//                .map(keys -> keys.toArray(new String[0]))
-//                .orElse(new String[0]);
         Properties databendProperties =
                 getDatabendProperties(context.getCatalogTable().getOptions());
         return new DatabendDynamicTableSink(

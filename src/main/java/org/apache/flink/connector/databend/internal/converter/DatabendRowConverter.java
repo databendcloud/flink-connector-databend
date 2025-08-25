@@ -117,14 +117,38 @@ public class DatabendRowConverter implements Serializable {
                         ? DecimalData.fromBigDecimal(new BigDecimal((BigInteger) val, 0), precision, scale)
                         : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
             case DATE:
-                return val -> (int) ((Date) val).toLocalDate().toEpochDay();
+                return val -> {
+                    if (val == null) {
+                        return null;
+                    }
+                    try {
+                        if (val instanceof String) {
+                            String dateStr = ((String) val).trim();
+                            if (dateStr.contains("/")) {
+                                dateStr = dateStr.replace("/", "-");
+                            }
+                            return (int) java.sql.Date.valueOf(dateStr).toLocalDate().toEpochDay();
+                        } else if (val instanceof java.sql.Date) {
+                            return (int) ((java.sql.Date) val).toLocalDate().toEpochDay();
+                        } else if (val instanceof java.time.LocalDate) {
+                            return (int) ((java.time.LocalDate) val).toEpochDay();
+                        } else {
+                            return (int) ((java.sql.Date) val).toLocalDate().toEpochDay();
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(
+                                String.format("Failed to convert date value: %s (type: %s)",
+                                        val, val.getClass().getName()), e);
+                    }
+                };
             case TIME_WITHOUT_TIME_ZONE:
                 return val -> (int) (((Time) val).toLocalTime().toNanoOfDay() / 1_000_000L);
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
-                return val -> TimestampData.fromTimestamp((Timestamp) val);
+                return val -> convertToTimestampData(val);
+
             case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
-                return val -> TimestampData.fromInstant(((Timestamp) val).toInstant());
+                return val -> convertToTimestampDataWithZone(val);
             case CHAR:
             case VARCHAR:
                 return val -> StringData.fromString((String) val);
@@ -137,6 +161,47 @@ public class DatabendRowConverter implements Serializable {
             default:
                 throw new UnsupportedOperationException("Unsupported type:" + type);
         }
+    }
+
+    private TimestampData convertToTimestampData(Object val) {
+        if (val == null) return null;
+
+        if (val instanceof String) {
+            String str = (String) val;
+            try {
+                if (str.contains("T")) {
+                    str = str.replace("T", " ");
+                }
+                if (str.contains("+")) {
+                    str = str.substring(0, str.indexOf("+"));
+                }
+                if (str.contains("Z")) {
+                    str = str.substring(0, str.indexOf("Z"));
+                }
+                Timestamp timestamp = Timestamp.valueOf(str.trim());
+                return TimestampData.fromTimestamp(timestamp);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to parse timestamp: " + str, e);
+            }
+        } else if (val instanceof Timestamp) {
+            return TimestampData.fromTimestamp((Timestamp) val);
+        } else if (val instanceof Long) {
+            return TimestampData.fromEpochMillis((Long) val);
+        }
+
+        throw new IllegalArgumentException("Unsupported timestamp type: " + val.getClass());
+    }
+
+    private TimestampData convertToTimestampDataWithZone(Object val) {
+        if (val == null) return null;
+
+        if (val instanceof String) {
+            return convertToTimestampData(val);
+        } else if (val instanceof Timestamp) {
+            return TimestampData.fromInstant(((Timestamp) val).toInstant());
+        }
+
+        throw new IllegalArgumentException("Unsupported timestamp type: " + val.getClass());
     }
 
     protected DatabendRowConverter.SerializationConverter createToExternalConverter(LogicalType type) {
